@@ -228,6 +228,10 @@
   letter-spacing: normal;
   text-align: center;
 }
+.bpmndt .input-label {
+  display: block;
+  margin: .375rem .75rem;
+}
 
 .bpmndt-marker:not(.djs-connection) .djs-visual > :first-child {fill:#ffffb9 !important}
 .bpmndt-marker-bright:not(.djs-connection) .djs-visual > :first-child {fill:#ffff5b !important}

@@ -21,12 +21,23 @@ export default class EditModal extends React.Component {
               <div className="container">
                 <div className="row" style={{"marginTop": "10px", "marginBottom": "10px"}}>
                   <div className="col">
-                    <input className="text-center" type="text" placeholder="Name" value={name || ""} onChange={mode.handleChangeName} />
+                    <input
+                      className="text-center"
+                      onChange={mode.handleChangeName}
+                      placeholder="Name"
+                      type="text"
+                      value={name || ""}
+                    />
                   </div>
                 </div>
                 <div className="row" style={{"marginTop": "10px", "marginBottom": "10px"}}>
                   <div className="col">
-                    <textarea placeholder="Description" rows="3" value={description || ""} onChange={mode.handleChangeDescription} />
+                    <textarea
+                      onChange={mode.handleChangeDescription}
+                      placeholder="Description"
+                      rows="3"
+                      value={description || ""}
+                    />
                   </div>
                 </div>
               </div>

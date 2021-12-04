@@ -8,9 +8,16 @@ import pluginTabState from "./PluginTabState";
 import PluginView from "./PluginView";
 
 export default class Plugin {
-  constructor(options) {
-    const controller = new PluginController({ hidePlugin: this.hide, ...options });
-    
+  constructor(canvas, elementRegistry, eventBus, modeling, moddle) {
+    const controller = new PluginController({
+      canvas,
+      elementRegistry,
+      eventBus,
+      modeling,
+      moddle,
+      hidePlugin: this.hide
+    });
+
     this.controller = controller;
     this.shown = false;
 
@@ -22,8 +29,6 @@ export default class Plugin {
     this.rootElement.className = "bpmndt";
 
     // subscribe events
-    const { eventBus } = options;
-
     eventBus.on("commandStack.element.updateProperties.postExecuted", (event) => {
       const { oldProperties, properties } = event.context;
 
@@ -37,12 +42,16 @@ export default class Plugin {
     });
 
     eventBus.on("editorActions.init", (event) => {
-      event.editorActions.register("toggleBpmnDrivenTesting", () => {
+      event.editorActions.register("bpmndtToggle", () => {
         if (this.shown) {
           this.hide();
         } else {
           this.show();
         }
+      });
+
+      event.editorActions.register("bpmndtConfigure", () => {
+        this.modelerExtension.showPluginConfig();
       });
     });
 
@@ -106,3 +115,5 @@ export default class Plugin {
     this.shown = true;
   }
 }
+
+Plugin.$inject = [ "canvas", "elementRegistry", "eventBus", "modeling", "moddle" ];
