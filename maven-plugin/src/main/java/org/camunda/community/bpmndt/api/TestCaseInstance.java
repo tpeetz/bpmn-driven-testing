@@ -2,14 +2,18 @@ package org.camunda.community.bpmndt.api;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.impl.bpmn.behavior.CallActivityBehavior;
+import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.camunda.bpm.engine.impl.pvm.delegate.ActivityExecution;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.community.bpmndt.api.cfg.BpmndtProcessEnginePlugin;
 
 public class TestCaseInstance {
 
@@ -35,6 +39,13 @@ public class TestCaseInstance {
     this.end = end;
 
     callActivityHandlerMap = new HashMap<>(4);
+  }
+
+  protected void announce(ProcessInstance pi) {
+    this.pi = pi;
+
+    // announce test case instance for custom call activity behavior
+    findProcessEnginePlugin().ifPresent((processEnginePlugin) -> processEnginePlugin.setInstance(this));
   }
 
   public void apply(EventHandler handler) {
@@ -106,6 +117,20 @@ public class TestCaseInstance {
     }
   }
 
+  private Optional<BpmndtProcessEnginePlugin> findProcessEnginePlugin() {
+    ProcessEngineConfigurationImpl processEngineConfiguration =
+        (ProcessEngineConfigurationImpl) processEngine.getProcessEngineConfiguration();
+
+    if (processEngineConfiguration.getProcessEnginePlugins() == null) {
+      return Optional.empty();
+    }
+
+    return processEngineConfiguration.getProcessEnginePlugins().stream()
+        .filter((processEnginePlugin) -> (processEnginePlugin instanceof BpmndtProcessEnginePlugin))
+        .map(BpmndtProcessEnginePlugin.class::cast)
+        .findFirst();
+  }
+
   public String getEnd() {
     return end;
   }
@@ -126,8 +151,14 @@ public class TestCaseInstance {
     callActivityHandlerMap.put(activityId, handler);
   }
 
-  protected void setProcessInstance(ProcessInstance pi) {
-    this.pi = pi;
+  protected void sendExecutionListenerData() {
+    Optional<BpmndtProcessEnginePlugin> processEnginePlugin = findProcessEnginePlugin();
+    if (!processEnginePlugin.isPresent()) {
+      return;
+    }
+
+    List<String> data = processEnginePlugin.get().getExecutionListenerData();
+    // TODO
   }
 
   protected void undeploy(String deploymentId) {

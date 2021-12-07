@@ -1,10 +1,17 @@
 package org.camunda.community.bpmndt.api.cfg;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
 import org.camunda.bpm.engine.ActivityTypes;
+import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.engine.impl.bpmn.behavior.CallActivityBehavior;
 import org.camunda.bpm.engine.impl.bpmn.parser.AbstractBpmnParseListener;
+import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.camunda.bpm.engine.impl.pvm.delegate.ActivityExecution;
 import org.camunda.bpm.engine.impl.pvm.process.ActivityImpl;
 import org.camunda.bpm.engine.impl.pvm.process.ScopeImpl;
@@ -23,18 +30,18 @@ public class BpmndtParseListener extends AbstractBpmnParseListener {
   /** Activity ID suffix of multi instance scopes. */
   private static final String MULTI_INSTANCE_SCOPE_SUFFIX = "#" + ActivityTypes.MULTI_INSTANCE_BODY;
 
-  /** The current test case instance. */
-  private TestCaseInstance instance;
+  /** Current test case instance supplier. */
+  private final Supplier<TestCaseInstance> instanceSupplier;
 
-  protected TestCaseInstance getInstance() {
-    return instance;
+  protected BpmndtParseListener(BpmndtProcessEnginePlugin processEnginePlugin) {
+    this.instanceSupplier = processEnginePlugin::getInstance;
   }
 
   @Override
   public void parseCallActivity(Element callActivityElement, ScopeImpl scope, ActivityImpl activity) {
     CallActivityBehavior behavior = (CallActivityBehavior) activity.getActivityBehavior();
 
-    activity.setActivityBehavior(new CustomCallActivityBehavior(this::getInstance, behavior));
+    activity.setActivityBehavior(new CustomCallActivityBehavior(behavior, instanceSupplier));
 
     // needed to verify the state before the call activity is executed
     activity.setAsyncBefore(true);
@@ -50,6 +57,16 @@ public class BpmndtParseListener extends AbstractBpmnParseListener {
   @Override
   public void parseManualTask(Element manualTaskElement, ScopeImpl scope, ActivityImpl activity) {
     setMultiInstanceAsync(scope, activity);
+  }
+
+  @Override
+  public void parseProcess(Element processElement, ProcessDefinitionEntity processDefinition) {
+    CustomExecutionListener executionListener = new CustomExecutionListener();
+
+    for (ActivityImpl activity : processDefinition.getActivities()) {
+      activity.addListener(ExecutionListener.EVENTNAME_START, executionListener);
+      activity.addListener(ExecutionListener.EVENTNAME_END, executionListener);
+    }
   }
 
   @Override
@@ -78,15 +95,6 @@ public class BpmndtParseListener extends AbstractBpmnParseListener {
   }
 
   /**
-   * Sets a reference to the current test case instance.
-   * 
-   * @param instance The current instance.
-   */
-  public void setInstance(TestCaseInstance instance) {
-    this.instance = instance;
-  }
-
-  /**
    * Sets the {@code asyncBefore} and {@code asyncAfter} flag of the given activity to {@code true},
    * if the surrounding scope is a multi instance activity.
    * 
@@ -106,15 +114,15 @@ public class BpmndtParseListener extends AbstractBpmnParseListener {
    */
   private static class CustomCallActivityBehavior extends CallActivityBehavior {
 
-    /** Current test case instance supplier. */
-    private final Supplier<TestCaseInstance> instanceSupplier;
-
     /** The activity's original behavior. */
     private final CallActivityBehavior behavior;
 
-    private CustomCallActivityBehavior(Supplier<TestCaseInstance> instanceSupplier, CallActivityBehavior behavior) {
-      this.instanceSupplier = instanceSupplier;
+    /** Current test case instance supplier. */
+    private final Supplier<TestCaseInstance> instanceSupplier;
+
+    private CustomCallActivityBehavior(CallActivityBehavior behavior, Supplier<TestCaseInstance> instanceSupplier) {
       this.behavior = behavior;
+      this.instanceSupplier = instanceSupplier;
     }
 
     @Override
@@ -125,6 +133,26 @@ public class BpmndtParseListener extends AbstractBpmnParseListener {
 
       if (shouldLeave) {
         leave(execution);
+      }
+    }
+  }
+
+  private static class CustomExecutionListener implements ExecutionListener {
+
+    @Override
+    public void notify(DelegateExecution execution) throws Exception {
+      Socket socket = null;
+      OutputStreamWriter osw;
+      String str = execution.getCurrentActivityId();
+      try {
+        socket = new Socket("localhost", 8000);
+        osw = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
+        osw.write(str);
+        osw.flush();
+      } catch (IOException e) {
+        System.err.print(e);
+      } finally {
+        socket.close();
       }
     }
   }

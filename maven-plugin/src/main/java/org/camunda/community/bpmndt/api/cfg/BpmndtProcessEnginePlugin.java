@@ -1,5 +1,6 @@
 package org.camunda.community.bpmndt.api.cfg;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -8,6 +9,7 @@ import org.camunda.bpm.engine.impl.bpmn.parser.BpmnParseListener;
 import org.camunda.bpm.engine.impl.cfg.AbstractProcessEnginePlugin;
 import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.camunda.bpm.engine.impl.history.HistoryLevel;
+import org.camunda.community.bpmndt.api.TestCaseInstance;
 
 /**
  * Plugin to configure a BPMN Driven Testing conform process engine, used to execute generated test
@@ -15,7 +17,11 @@ import org.camunda.bpm.engine.impl.history.HistoryLevel;
  */
 public class BpmndtProcessEnginePlugin extends AbstractProcessEnginePlugin {
 
+  /** Determines if Spring based testing is enabled or not. */
   private final boolean springEnabled;
+
+  /** The current test case instance. */
+  private TestCaseInstance instance;
 
   public BpmndtProcessEnginePlugin() {
     this(false);
@@ -25,6 +31,15 @@ public class BpmndtProcessEnginePlugin extends AbstractProcessEnginePlugin {
     this.springEnabled = springEnabled;
   }
 
+  public List<String> getExecutionListenerData() {
+    // TODO
+    return Collections.emptyList();
+  }
+
+  protected TestCaseInstance getInstance() {
+    return instance;
+  }
+  
   @Override
   public void preInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
     List<BpmnParseListener> postParseListeners = processEngineConfiguration.getCustomPostBPMNParseListeners();
@@ -34,7 +49,7 @@ public class BpmndtProcessEnginePlugin extends AbstractProcessEnginePlugin {
       processEngineConfiguration.setCustomPostBPMNParseListeners(postParseListeners);
     }
 
-    postParseListeners.add(new BpmndtParseListener());
+    postParseListeners.add(new BpmndtParseListener(this));
 
     processEngineConfiguration.setCmmnEnabled(false);
     processEngineConfiguration.setCustomPostBPMNParseListeners(postParseListeners);
@@ -52,5 +67,14 @@ public class BpmndtProcessEnginePlugin extends AbstractProcessEnginePlugin {
       // otherwise a data source is used
       processEngineConfiguration.setJdbcUrl(url);
     }
+  }
+
+  /**
+   * Sets a reference to the current test case instance.
+   * 
+   * @param instance The current instance.
+   */
+  public void setInstance(TestCaseInstance instance) {
+    this.instance = instance;
   }
 }

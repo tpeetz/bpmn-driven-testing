@@ -91,9 +91,7 @@ export default class ModelerExtension extends React.Component {
   _notifyPluginConfigChanged(pluginConfig) {
     const { ipcRenderer } = this.props.config.backend;
 
-    const response = ipcRenderer.sendSync("bpmndt-config-changed", pluginConfig);
-
-    console.log(response);
+    ipcRenderer.sendSync("bpmndt-config-changed", pluginConfig);
   }
 
   _savePluginConfig =() => {
