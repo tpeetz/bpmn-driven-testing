@@ -2,47 +2,36 @@ package org.camunda.community.bpmndt;
 
 import static org.camunda.bpm.model.bpmn.impl.BpmnModelConstants.BPMN_ELEMENT_BOUNDARY_EVENT;
 import static org.camunda.bpm.model.bpmn.impl.BpmnModelConstants.BPMN_ELEMENT_CALL_ACTIVITY;
-import static org.camunda.bpm.model.bpmn.impl.BpmnModelConstants.BPMN_ELEMENT_CONDITIONAL_EVENT_DEFINITION;
-import static org.camunda.bpm.model.bpmn.impl.BpmnModelConstants.BPMN_ELEMENT_ERROR_EVENT_DEFINITION;
-import static org.camunda.bpm.model.bpmn.impl.BpmnModelConstants.BPMN_ELEMENT_ESCALATION_EVENT_DEFINITION;
+import static org.camunda.bpm.model.bpmn.impl.BpmnModelConstants.BPMN_ELEMENT_END_EVENT;
 import static org.camunda.bpm.model.bpmn.impl.BpmnModelConstants.BPMN_ELEMENT_INTERMEDIATE_CATCH_EVENT;
 import static org.camunda.bpm.model.bpmn.impl.BpmnModelConstants.BPMN_ELEMENT_INTERMEDIATE_THROW_EVENT;
-import static org.camunda.bpm.model.bpmn.impl.BpmnModelConstants.BPMN_ELEMENT_MESSAGE_EVENT_DEFINITION;
+import static org.camunda.bpm.model.bpmn.impl.BpmnModelConstants.BPMN_ELEMENT_PROCESS;
 import static org.camunda.bpm.model.bpmn.impl.BpmnModelConstants.BPMN_ELEMENT_RECEIVE_TASK;
 import static org.camunda.bpm.model.bpmn.impl.BpmnModelConstants.BPMN_ELEMENT_SERVICE_TASK;
-import static org.camunda.bpm.model.bpmn.impl.BpmnModelConstants.BPMN_ELEMENT_SIGNAL_EVENT_DEFINITION;
-import static org.camunda.bpm.model.bpmn.impl.BpmnModelConstants.BPMN_ELEMENT_TIMER_EVENT_DEFINITION;
 import static org.camunda.bpm.model.bpmn.impl.BpmnModelConstants.BPMN_ELEMENT_USER_TASK;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.lang.model.SourceVersion;
 
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.Activity;
-import org.camunda.bpm.model.bpmn.instance.ConditionalEventDefinition;
-import org.camunda.bpm.model.bpmn.instance.ErrorEventDefinition;
-import org.camunda.bpm.model.bpmn.instance.EscalationEventDefinition;
-import org.camunda.bpm.model.bpmn.instance.EventDefinition;
 import org.camunda.bpm.model.bpmn.instance.FlowNode;
 import org.camunda.bpm.model.bpmn.instance.IntermediateThrowEvent;
 import org.camunda.bpm.model.bpmn.instance.MessageEventDefinition;
 import org.camunda.bpm.model.bpmn.instance.MultiInstanceLoopCharacteristics;
 import org.camunda.bpm.model.bpmn.instance.Process;
 import org.camunda.bpm.model.bpmn.instance.ServiceTask;
-import org.camunda.bpm.model.bpmn.instance.SignalEventDefinition;
-import org.camunda.bpm.model.bpmn.instance.TimerEventDefinition;
+import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.camunda.community.bpmndt.cmd.CollectBpmnFlowNodes;
 import org.camunda.community.bpmndt.model.TestCase;
 import org.camunda.community.bpmndt.model.TestCases;
@@ -153,60 +142,6 @@ public class BpmnSupport {
     return file;
   }
 
-  public ConditionalEventDefinition getConditionalEventDefinition(Collection<EventDefinition> eventDefinitions) {
-    Optional<EventDefinition> eventDefinition = eventDefinitions.stream().findFirst();
-    if (is(eventDefinition, BPMN_ELEMENT_CONDITIONAL_EVENT_DEFINITION)) {
-      return (ConditionalEventDefinition) eventDefinition.get();
-    } else {
-      return null;
-    }
-  }
-
-  public ErrorEventDefinition getErrorEventDefinition(Collection<EventDefinition> eventDefinitions) {
-    Optional<EventDefinition> eventDefinition = eventDefinitions.stream().findFirst();
-    if (is(eventDefinition, BPMN_ELEMENT_ERROR_EVENT_DEFINITION)) {
-      return (ErrorEventDefinition) eventDefinition.get();
-    } else {
-      return null;
-    }
-  }
-
-  public EscalationEventDefinition getEscalationEventDefinition(Collection<EventDefinition> eventDefinitions) {
-    Optional<EventDefinition> eventDefinition = eventDefinitions.stream().findFirst();
-    if (is(eventDefinition, BPMN_ELEMENT_ESCALATION_EVENT_DEFINITION)) {
-      return (EscalationEventDefinition) eventDefinition.get();
-    } else {
-      return null;
-    }
-  }
-
-  public MessageEventDefinition getMessageEventDefinition(Collection<EventDefinition> eventDefinitions) {
-    Optional<EventDefinition> eventDefinition = eventDefinitions.stream().findFirst();
-    if (is(eventDefinition, BPMN_ELEMENT_MESSAGE_EVENT_DEFINITION)) {
-      return (MessageEventDefinition) eventDefinition.get();
-    } else {
-      return null;
-    }
-  }
-
-  public SignalEventDefinition getSignalEventDefinition(Collection<EventDefinition> eventDefinitions) {
-    Optional<EventDefinition> eventDefinition = eventDefinitions.stream().findFirst();
-    if (is(eventDefinition, BPMN_ELEMENT_SIGNAL_EVENT_DEFINITION)) {
-      return (SignalEventDefinition) eventDefinition.get();
-    } else {
-      return null;
-    }
-  }
-
-  public TimerEventDefinition getTimerEventDefinition(Collection<EventDefinition> eventDefinitions) {
-    Optional<EventDefinition> eventDefinition = eventDefinitions.stream().findFirst();
-    if (is(eventDefinition, BPMN_ELEMENT_TIMER_EVENT_DEFINITION)) {
-      return (TimerEventDefinition) eventDefinition.get();
-    } else {
-      return null;
-    }
-  }
-
   /**
    * Gets the multi instance loop characteristics from the flow node with the given ID.
    * 
@@ -265,7 +200,9 @@ public class BpmnSupport {
     } else if (is(flowNodeId, BPMN_ELEMENT_INTERMEDIATE_THROW_EVENT)) {
       IntermediateThrowEvent event = (IntermediateThrowEvent) flowNodes.get(flowNodeId);
 
-      MessageEventDefinition messageEventDefinition = getMessageEventDefinition(event.getEventDefinitions());
+      BpmnEventSupport eventSupport = new BpmnEventSupport(event);
+      MessageEventDefinition messageEventDefinition = eventSupport.isMessage() ? eventSupport.getMessageDefinition() : null;
+
       return messageEventDefinition != null ? messageEventDefinition.getCamundaTopic() : null;
     } else {
       return null;
@@ -274,14 +211,6 @@ public class BpmnSupport {
 
   public boolean has(String flowNodeId) {
     return flowNodes.containsKey(flowNodeId);
-  }
-
-  protected boolean is(Optional<EventDefinition> eventDefinition, String typeName) {
-    if (eventDefinition.isPresent()) {
-      return eventDefinition.get().getElementType().getTypeName().equals(typeName);
-    } else {
-      return false;
-    }
   }
 
   protected boolean is(String flowNodeId, String typeName) {
@@ -304,7 +233,9 @@ public class BpmnSupport {
     } else if (is(flowNodeId, BPMN_ELEMENT_INTERMEDIATE_THROW_EVENT)) {
       IntermediateThrowEvent event = (IntermediateThrowEvent) flowNodes.get(flowNodeId);
 
-      MessageEventDefinition messageEventDefinition = getMessageEventDefinition(event.getEventDefinitions());
+      BpmnEventSupport eventSupport = new BpmnEventSupport(event);
+      MessageEventDefinition messageEventDefinition = eventSupport.isMessage() ? eventSupport.getMessageDefinition() : null;
+
       return "external".equals(messageEventDefinition != null ? messageEventDefinition.getCamundaType() : null);
     } else {
       return false;
@@ -313,6 +244,27 @@ public class BpmnSupport {
 
   public boolean isIntermediateCatchEvent(String flowNodeId) {
     return is(flowNodeId, BPMN_ELEMENT_INTERMEDIATE_CATCH_EVENT);
+  }
+
+  /**
+   * Determines if the flow node with the given ID ends the process or not. This is the case if it
+   * exists, if it is an end event and if the parent element is a process.
+   * 
+   * @param flowNodeId A specific flow node ID.
+   * 
+   * @return {@code true}, if the flow node ends the process. Otherwise {@code false}.
+   */
+  public boolean isProcessEnd(String flowNodeId) {
+    if (!is(flowNodeId, BPMN_ELEMENT_END_EVENT)) {
+      return false;
+    }
+
+    ModelElementInstance parent = flowNodes.get(flowNodeId).getParentElement();
+    if (parent == null) {
+      return false;
+    }
+
+    return parent.getElementType().getTypeName().equals(BPMN_ELEMENT_PROCESS);
   }
 
   public boolean isReceiveTask(String flowNodeId) {

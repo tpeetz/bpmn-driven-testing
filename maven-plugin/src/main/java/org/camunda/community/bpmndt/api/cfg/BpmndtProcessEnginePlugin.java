@@ -1,6 +1,5 @@
 package org.camunda.community.bpmndt.api.cfg;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -29,11 +28,6 @@ public class BpmndtProcessEnginePlugin extends AbstractProcessEnginePlugin {
 
   public BpmndtProcessEnginePlugin(boolean springEnabled) {
     this.springEnabled = springEnabled;
-  }
-
-  public List<String> getExecutionListenerData() {
-    // TODO
-    return Collections.emptyList();
   }
 
   protected TestCaseInstance getInstance() {
