@@ -44,7 +44,7 @@ public class AbstractJUnit4TestCaseTest {
         .singleResult();
 
     assertThat(deployment, notNullValue());
-    assertThat(deployment.getName(), equalTo("TestCase"));
+    assertThat(deployment.getName(), equalTo(tc.getClass().getName()));
 
     ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
         .deploymentId(tc.getDeploymentId())

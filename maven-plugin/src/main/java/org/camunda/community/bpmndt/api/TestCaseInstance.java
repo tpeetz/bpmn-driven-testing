@@ -1,6 +1,12 @@
 package org.camunda.community.bpmndt.api;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -14,6 +20,10 @@ import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.community.bpmndt.api.cfg.BpmndtProcessEnginePlugin;
 
+/**
+ * Generic test case instance, which performs the deployment of the related process definition and
+ * applies handlers during execution.
+ */
 public class TestCaseInstance {
 
   /** Name of the process engine to use. */
@@ -21,7 +31,7 @@ public class TestCaseInstance {
 
   private final Map<String, CallActivityHandler> callActivityHandlerMap;
 
-  private final TestCaseInstanceData data;
+  private final TestExecutionData data;
 
   private ProcessEngine processEngine;
 
@@ -41,7 +51,7 @@ public class TestCaseInstance {
   public TestCaseInstance() {
     callActivityHandlerMap = new HashMap<>(4);
 
-    data = new TestCaseInstanceData();
+    data = new TestExecutionData();
   }
 
   /**
@@ -143,11 +153,11 @@ public class TestCaseInstance {
   }
 
   /**
-   * Returns the object, used to gather data about the test case instance and its execution.
+   * Returns the object, used to collect data about the test execution.
    * 
-   * @return The test case instance data.
+   * @return The test execution data.
    */
-  public TestCaseInstanceData getData() {
+  public TestExecutionData getData() {
     return data;
   }
 
@@ -179,6 +189,33 @@ public class TestCaseInstance {
     callActivityHandlerMap.put(activityId, handler);
   }
 
+  protected void sendData(String host, int port) {
+    Socket socket;
+    try {
+      socket = new Socket(host, port);
+    } catch (UnknownHostException e) {
+      throw new RuntimeException(String.format("Data host '%s' could not be resolved", host), e);
+    } catch (IOException e) {
+      throw new RuntimeException("Socket connection could not be established", e);
+    }
+
+    try (OutputStreamWriter w = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
+      socket.setSoTimeout(1000);
+
+      data.write(w);
+    } catch (SocketException e) {
+      throw new RuntimeException("Socket connection timeout could not be set", e);
+    } catch (IOException e) {
+      throw new RuntimeException("Data could not be written to socket connection", e);
+    } finally {
+      try {
+        socket.close();
+      } catch (IOException e) {
+        // can be ignored
+      }
+    }
+  }
+
   protected void setEnd(String end) {
     this.end = end;
   }
@@ -205,6 +242,7 @@ public class TestCaseInstance {
 
   protected void undeploy() {
     callActivityHandlerMap.clear();
+    data.clear();
 
     if (deploymentId == null) {
       return;

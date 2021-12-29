@@ -54,28 +54,50 @@ public abstract class AbstractJUnit4TestCase extends TestWatcher {
     instance.setProcessEngine(processEngine);
     instance.setStart(getStart());
 
-    String deploymentName = this.getClass().getSimpleName();
+    Class<?> testClass = description.getTestClass();
+
+    // e.g. org.example.it.SimpleTest
+    String testName = testClass.getName();
+    // e.g. testExecute
+    String testMethodName = description.getMethodName();
+    // e.g. generated.simple.TC_startEvent__endEvent
+    String testCaseName = this.getClass().getName();
 
     // deploy BPMN resource
     if (getBpmnResourceName() != null) {
-      instance.deploy(deploymentName, getBpmnResourceName());
+      instance.deploy(testCaseName, getBpmnResourceName());
     } else {
-      instance.deploy(deploymentName, getBpmnResource());
+      instance.deploy(testCaseName, getBpmnResource());
     }
 
-    String annotationDeploymentName = String.format("%s.%s", description.getTestClass().getSimpleName(), description.getMethodName());
+    // e.g. SimpleTest.testExecute
+    String annotationDeploymentName = String.format("%s.%s", testClass.getSimpleName(), testMethodName);
 
     Deployment annotationDeployment = processEngine.getRepositoryService().createDeploymentQuery()
         .deploymentName(annotationDeploymentName)
         .singleResult();
 
-    if (annotationDeployment != null) {
-      // already deployed by another test case
+    if (annotationDeployment == null) {
+      // perform optional annotation based deployment (via @Deployment) for DMN files and other resources
+      annotationDeploymentId = annotationDeploymentSetUp(processEngine, description.getTestClass(), description.getMethodName());
+    }
+
+    instance.getData().recordTest(testName, testMethodName, testCaseName);
+  }
+
+  @Override
+  protected void succeeded(Description description) {
+    instance.getData().recordTestSuccess();
+  }
+
+  @Override
+  protected void failed(Throwable t, Description description) {
+    if (instance == null) {
+      // skip data recrod, if test setup failed
       return;
     }
 
-    // perform optional annotation based deployment (via @Deployment) for DMN files and other resources
-    annotationDeploymentId = annotationDeploymentSetUp(processEngine, description.getTestClass(), description.getMethodName());
+    instance.getData().recordTestFailure(t);
   }
 
   @Override
@@ -83,20 +105,21 @@ public abstract class AbstractJUnit4TestCase extends TestWatcher {
     Mocks.reset();
 
     if (instance == null) {
-      // skip undeployment, if process engine was not built
-      // or Spring application context did not provide the desired process engine
+      // skip undeployment, if test setup failed
       return;
+    }
+
+    if (getDataHost() != null && getDataPort() > 0) {
+      instance.sendData(getDataHost(), getDataPort());
     }
 
     // undeploy BPMN resource
     instance.undeploy();
 
-    if (annotationDeploymentId == null) {
-      return;
+    if (annotationDeploymentId != null) {
+      // undeploy annotation based deployment
+      annotationDeploymentTearDown(getProcessEngine(), annotationDeploymentId, description.getTestClass(), description.getMethodName());
     }
-
-    // undeploy annotation based deployment
-    annotationDeploymentTearDown(getProcessEngine(), annotationDeploymentId, description.getTestClass(), description.getMethodName());
   }
 
   /**
@@ -155,6 +178,24 @@ public abstract class AbstractJUnit4TestCase extends TestWatcher {
    */
   protected String getBpmnResourceName() {
     return null;
+  }
+
+  /**
+   * Provides the hostname of the execution data listener - a TCP server.
+   * 
+   * @return The execution data listener host or {@code null}, if not configured.
+   */
+  protected String getDataHost() {
+    return null;
+  }
+
+  /**
+   * Provides the port of the execution data listener - a TCP server.
+   * 
+   * @return The execution data listener port or {@code -1}, if not configured.
+   */
+  protected int getDataPort() {
+    return -1;
   }
 
   /**

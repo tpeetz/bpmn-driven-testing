@@ -18,6 +18,7 @@ import org.camunda.community.bpmndt.api.JobHandler;
 import org.camunda.community.bpmndt.api.MultiInstanceHandler;
 import org.camunda.community.bpmndt.api.TestCaseExecutor;
 import org.camunda.community.bpmndt.api.TestCaseInstance;
+import org.camunda.community.bpmndt.api.TestExecutionData;
 import org.camunda.community.bpmndt.api.UserTaskHandler;
 import org.camunda.community.bpmndt.api.cfg.BpmndtParseListener;
 import org.camunda.community.bpmndt.api.cfg.BpmndtProcessEnginePlugin;
@@ -103,6 +104,7 @@ public class Generator {
     apiClasses.add(MultiInstanceHandler.class);
     apiClasses.add(TestCaseInstance.class);
     apiClasses.add(TestCaseExecutor.class);
+    apiClasses.add(TestExecutionData.class);
     apiClasses.add(UserTaskHandler.class);
 
     apiClasses.add(BpmndtParseListener.class);

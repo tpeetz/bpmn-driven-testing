@@ -38,7 +38,7 @@ public class EndActivityTest {
 
       ProcessInstanceAssert piAssert = ProcessEngineTests.assertThat(pi);
 
-      piAssert.hasPassed("startEvent").isWaitingAt("subProcessEndEvent");
+      piAssert.hasPassed("startEvent", "subProcessStartEvent").isWaitingAt("subProcessEndEvent");
     }
 
     @Override

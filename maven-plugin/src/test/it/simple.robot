@@ -82,6 +82,7 @@ mvn clean test
   Should contain  ${result.stdout}  Writing file: target/bpmndt/org/camunda/community/bpmndt/api/MultiInstanceHandler.java
   Should contain  ${result.stdout}  Writing file: target/bpmndt/org/camunda/community/bpmndt/api/TestCaseInstance.java
   Should contain  ${result.stdout}  Writing file: target/bpmndt/org/camunda/community/bpmndt/api/TestCaseExecutor.java
+  Should contain  ${result.stdout}  Writing file: target/bpmndt/org/camunda/community/bpmndt/api/TestExecutionData.java
   Should contain  ${result.stdout}  Writing file: target/bpmndt/org/camunda/community/bpmndt/api/UserTaskHandler.java
   Should contain  ${result.stdout}  Writing file: target/bpmndt/org/camunda/community/bpmndt/api/cfg/BpmndtParseListener.java
   Should contain  ${result.stdout}  Writing file: target/bpmndt/org/camunda/community/bpmndt/api/cfg/BpmndtProcessEnginePlugin.java
@@ -95,6 +96,7 @@ mvn clean test
   File should exist  ${testSources}/org/camunda/community/bpmndt/api/MultiInstanceHandler.java
   File should exist  ${testSources}/org/camunda/community/bpmndt/api/TestCaseInstance.java
   File should exist  ${testSources}/org/camunda/community/bpmndt/api/TestCaseExecutor.java
+  File should exist  ${testSources}/org/camunda/community/bpmndt/api/TestExecutionData.java
   File should exist  ${testSources}/org/camunda/community/bpmndt/api/UserTaskHandler.java
   File should exist  ${testSources}/org/camunda/community/bpmndt/api/cfg/BpmndtParseListener.java
   File should exist  ${testSources}/org/camunda/community/bpmndt/api/cfg/BpmndtProcessEnginePlugin.java

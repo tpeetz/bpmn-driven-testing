@@ -13,7 +13,7 @@ import org.camunda.bpm.engine.impl.pvm.process.ActivityImpl;
 import org.camunda.bpm.engine.impl.pvm.process.ScopeImpl;
 import org.camunda.bpm.engine.impl.util.xml.Element;
 import org.camunda.community.bpmndt.api.TestCaseInstance;
-import org.camunda.community.bpmndt.api.TestCaseInstanceData;
+import org.camunda.community.bpmndt.api.TestExecutionData;
 
 /**
  * Custom BPMN parse listener that:
@@ -75,10 +75,19 @@ public class BpmndtParseListener extends AbstractBpmnParseListener {
     }
   }
 
+  /**
+   * Instruments the execution by adding a listener to all activities, which are not scopes.
+   * 
+   * @param activities A list of activities.
+   * 
+   * @param l The execution listener to add.
+   */
   protected void instrumentExecution(List<ActivityImpl> activities, ExecutionListener l) {
     for (ActivityImpl activity : activities) {
-      activity.addListener(ExecutionListener.EVENTNAME_START, l);
-      activity.addListener(ExecutionListener.EVENTNAME_END, l);
+      if (!activity.isScope()) {
+        activity.addListener(ExecutionListener.EVENTNAME_START, l);
+        activity.addListener(ExecutionListener.EVENTNAME_END, l);
+      }
 
       instrumentExecution(activity.getActivities(), l);
     }
@@ -155,7 +164,7 @@ public class BpmndtParseListener extends AbstractBpmnParseListener {
   }
 
   /**
-   * Custom behavior to stub call activities for isolated testing.
+   * Behavior to stub call activities for isolated testing.
    */
   private static class CustomCallActivityBehavior extends CallActivityBehavior {
 
@@ -179,22 +188,25 @@ public class BpmndtParseListener extends AbstractBpmnParseListener {
     }
   }
 
+  /**
+   * Listener, used to collect data during a test case execution.
+   */
   private static class CustomExecutionListener implements ExecutionListener {
 
-    private final TestCaseInstanceData data;
+    private final TestExecutionData data;
 
-    private CustomExecutionListener(TestCaseInstanceData data) {
+    private CustomExecutionListener(TestExecutionData data) {
       this.data = data;
     }
 
     @Override
     public void notify(DelegateExecution execution) throws Exception {
       if (execution.getEventName().equals(ExecutionListener.EVENTNAME_START)) {
-        data.addActivityStart(execution.getCurrentActivityId());
+        data.recordActivityStart(execution.getCurrentActivityId());
       }
 
       if (execution.getEventName().equals(ExecutionListener.EVENTNAME_END)) {
-        data.addActivityEnd(execution.getCurrentActivityId());
+        data.recordActivityEnd(execution.getCurrentActivityId());
       }
     }
   }
