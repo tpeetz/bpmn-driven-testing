@@ -11,6 +11,8 @@ public class GeneratorContext {
   private String packageName;
   private List<String> processEnginePluginNames;
   private boolean springEnabled;
+  private String testExecutionListenerHost;
+  private int testExecutionListenerPort;
   private Path testSourcePath;
 
   public Path getBasePath() {
@@ -40,6 +42,14 @@ public class GeneratorContext {
     return processEnginePluginNames != null ? processEnginePluginNames : Collections.emptyList();
   }
 
+  public String getTestExecutionListenerHost() {
+    return testExecutionListenerHost;
+  }
+
+  public int getTestExecutionListenerPort() {
+    return testExecutionListenerPort;
+  }
+
   public Path getTestSourcePath() {
     return testSourcePath;
   }
@@ -66,6 +76,14 @@ public class GeneratorContext {
 
   public void setSpringEnabled(boolean springEnabled) {
     this.springEnabled = springEnabled;
+  }
+
+  public void setTestExecutionListenerHost(String testExecutionListenerHost) {
+    this.testExecutionListenerHost = testExecutionListenerHost;
+  }
+
+  public void setTestExecutionListenerPort(int testExecutionListenerPort) {
+    this.testExecutionListenerPort = testExecutionListenerPort;
   }
 
   public void setTestSourcePath(Path testSourcePath) {

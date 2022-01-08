@@ -1,6 +1,8 @@
 const { ipcMain } = require("electron");
 const net = require("net");
 
+const receivedData = [];
+
 let server;
 
 function startServer({ host, port }) {
@@ -10,7 +12,9 @@ function startServer({ host, port }) {
     socket.setEncoding("utf8");
 
     socket.on("data", (data) => {
-      console.log(data);
+      console.log(`bpmndt: Data received - length ${data.length}`);
+
+      receivedData.push(data);
     });
   });
 
@@ -38,5 +42,9 @@ ipcMain.on("bpmndt-config-changed", (event, pluginConfig) => {
     stopServer();
   }
 
-  event.returnValue = { server: enabled ? "startted": "stopped" };
+  event.returnValue = { server: enabled ? "started": "stopped" };
+});
+
+ipcMain.on("bpmndt-data", (event) => {
+  event.returnValue = receivedData.splice(0, receivedData.length);
 });

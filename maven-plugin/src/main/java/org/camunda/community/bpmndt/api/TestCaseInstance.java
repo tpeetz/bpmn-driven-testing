@@ -189,6 +189,15 @@ public class TestCaseInstance {
     callActivityHandlerMap.put(activityId, handler);
   }
 
+  /**
+   * Sends the collected test execution data via TCP to a listener.
+   * 
+   * @param host The host of the test execution listener.
+   * 
+   * @param port The port of the test execution listener.
+   * 
+   * @see TestExecutionData
+   */
   protected void sendData(String host, int port) {
     Socket socket;
     try {
@@ -196,7 +205,7 @@ public class TestCaseInstance {
     } catch (UnknownHostException e) {
       throw new RuntimeException(String.format("Data host '%s' could not be resolved", host), e);
     } catch (IOException e) {
-      throw new RuntimeException("Socket connection could not be established", e);
+      throw new RuntimeException(String.format("Socket connection to '%s:%d' could not be established", host, port), e);
     }
 
     try (OutputStreamWriter w = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {

@@ -53,6 +53,12 @@ public class GenerateJUnit4TestCase implements Consumer<TestCaseContext> {
 
     classBuilder.addMethod(buildGetBpmnResourceName(gCtx, ctx));
     classBuilder.addMethod(buildGetEnd(ctx));
+
+    if (gCtx.getTestExecutionListenerHost() != null && gCtx.getTestExecutionListenerPort() > 0) {
+      classBuilder.addMethod(buildGetListenerHost());
+      classBuilder.addMethod(buildGetListenerPort());
+    }
+
     classBuilder.addMethod(buildGetProcessDefinitionKey(ctx));
 
     if (!gCtx.getProcessEnginePluginNames().isEmpty()) {
@@ -138,6 +144,24 @@ public class GenerateJUnit4TestCase implements Consumer<TestCaseContext> {
         .addModifiers(Modifier.PUBLIC)
         .returns(String.class)
         .addStatement("return $S", end != null ? end.getId() : null)
+        .build();
+  }
+
+  protected MethodSpec buildGetListenerHost() {
+    return MethodSpec.methodBuilder("getListenerHost")
+        .addAnnotation(Override.class)
+        .addModifiers(Modifier.PROTECTED)
+        .returns(String.class)
+        .addStatement("return $S", gCtx.getTestExecutionListenerHost())
+        .build();
+  }
+
+  protected MethodSpec buildGetListenerPort() {
+    return MethodSpec.methodBuilder("getListenerPort")
+        .addAnnotation(Override.class)
+        .addModifiers(Modifier.PROTECTED)
+        .returns(TypeName.INT)
+        .addStatement("return $L", gCtx.getTestExecutionListenerPort())
         .build();
   }
 

@@ -30,7 +30,9 @@ public abstract class AbstractJUnit4TestCase extends TestWatcher {
 
   protected TestCaseInstance instance;
 
-  /** ID of optional annotation based deployment. */
+  /**
+   * ID of optional annotation based deployment ({@link org.camunda.bpm.engine.test.Deployment}).
+   */
   private String annotationDeploymentId;
 
   @Override
@@ -79,7 +81,7 @@ public abstract class AbstractJUnit4TestCase extends TestWatcher {
 
     if (annotationDeployment == null) {
       // perform optional annotation based deployment (via @Deployment) for DMN files and other resources
-      annotationDeploymentId = annotationDeploymentSetUp(processEngine, description.getTestClass(), description.getMethodName());
+      annotationDeploymentId = annotationDeploymentSetUp(processEngine, testClass, testMethodName);
     }
 
     instance.getData().recordTest(testName, testMethodName, testCaseName);
@@ -109,16 +111,21 @@ public abstract class AbstractJUnit4TestCase extends TestWatcher {
       return;
     }
 
-    if (getDataHost() != null && getDataPort() > 0) {
-      instance.sendData(getDataHost(), getDataPort());
+    if (getListenerHost() != null && getListenerPort() > 0) {
+      instance.sendData(getListenerHost(), getListenerPort());
     }
 
     // undeploy BPMN resource
     instance.undeploy();
 
+    Class<?> testClass = description.getTestClass();
+
+    // e.g. testExecute
+    String testMethodName = description.getMethodName();
+
     if (annotationDeploymentId != null) {
       // undeploy annotation based deployment
-      annotationDeploymentTearDown(getProcessEngine(), annotationDeploymentId, description.getTestClass(), description.getMethodName());
+      annotationDeploymentTearDown(getProcessEngine(), annotationDeploymentId, testClass, testMethodName);
     }
   }
 
@@ -181,24 +188,6 @@ public abstract class AbstractJUnit4TestCase extends TestWatcher {
   }
 
   /**
-   * Provides the hostname of the execution data listener - a TCP server.
-   * 
-   * @return The execution data listener host or {@code null}, if not configured.
-   */
-  protected String getDataHost() {
-    return null;
-  }
-
-  /**
-   * Provides the port of the execution data listener - a TCP server.
-   * 
-   * @return The execution data listener port or {@code -1}, if not configured.
-   */
-  protected int getDataPort() {
-    return -1;
-  }
-
-  /**
    * Returns the ID of the process definition deployment.
    * 
    * @return The deployment ID.
@@ -213,6 +202,25 @@ public abstract class AbstractJUnit4TestCase extends TestWatcher {
    * @return The end activity ID.
    */
   public abstract String getEnd();
+
+  /**
+   * Provides the hostname of the test execution listener - a TCP server.
+   * 
+   * @return The test execution listener host or {@code null}, if not configured.
+   */
+  protected String getListenerHost() {
+    return null;
+  }
+
+  /**
+   * Provides the port of the test execution listener - a TCP server.
+   * 
+   * @return The test execution listener port or {@code -1}, if not configured.
+   */
+  protected int getListenerPort() {
+    return -1;
+  }
+
 
   /**
    * Returns the key of the process definition that is tested.

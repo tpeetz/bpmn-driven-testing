@@ -37,7 +37,7 @@ public class SendDataTest {
 
   @Before
   public void setUp() {
-    tc = new TestCase("localhost", serverSocket.getPort());
+    tc = new TestCase("localhost", 8000);
   }
 
   @Test
@@ -143,12 +143,12 @@ public class SendDataTest {
     }
 
     @Override
-    protected String getDataHost() {
+    protected String getListenerHost() {
       return host;
     }
 
     @Override
-    protected int getDataPort() {
+    protected int getListenerPort() {
       return port;
     }
 

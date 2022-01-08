@@ -33,6 +33,11 @@ public class GeneratorMojo extends AbstractMojo {
   @Parameter(defaultValue = "false", required = true)
   protected boolean springEnabled;
 
+  @Parameter
+  protected String testExecutionListenerHost;
+  @Parameter
+  protected int testExecutionListenerPort;
+
   /** Name of the test source directory, with the build directory (target). */
   @Parameter(defaultValue = "bpmndt", required = true)
   protected String testSourceDirectory;
@@ -53,6 +58,8 @@ public class GeneratorMojo extends AbstractMojo {
     ctx.setPackageName(packageName);
     ctx.setProcessEnginePluginNames(processEnginePlugins);
     ctx.setSpringEnabled(springEnabled);
+    ctx.setTestExecutionListenerHost(testExecutionListenerHost);
+    ctx.setTestExecutionListenerPort(testExecutionListenerPort);
     ctx.setTestSourcePath(testSourcePath);
 
     // generate test code
