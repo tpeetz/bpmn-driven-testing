@@ -209,7 +209,7 @@ public class TestCaseInstance {
     }
 
     try (OutputStreamWriter w = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
-      socket.setSoTimeout(1000);
+      socket.setSoTimeout(100);
 
       data.write(w);
     } catch (SocketException e) {

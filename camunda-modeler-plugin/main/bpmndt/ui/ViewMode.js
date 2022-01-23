@@ -1,6 +1,7 @@
 import {
   MODE_EDIT,
   MODE_MIGRATE,
+  MODE_SHOW_TEST_EXECUTION,
   MODE_VIEW
 } from "../constants";
 
@@ -23,12 +24,17 @@ export default class ViewMode extends BaseMode {
       style: "danger",
       title: "Remove test case"
     };
-    this.actionRight = {
+    this.actionRight = [{
+      icon: "fas fa-cog",
+      onClick: this._handleClickShowTestExecution,
+      style: "success",
+      title: "Show test execution"
+    }, {
       icon: "fas fa-pencil-alt",
       onClick: this._handleClickEdit,
       style: "primary",
       title: "Edit test case"
-    };
+    }];
   }
 
   computeInitialState(ctx) {
@@ -99,6 +105,9 @@ export default class ViewMode extends BaseMode {
     this._setTestCaseIndex(this.state.testCaseIndex - 1);
   }
 
+  _handleClickShowTestExecution = () => {
+    this.setMode(MODE_SHOW_TEST_EXECUTION, {testCase: this.testCase});
+  }
   _handleClickEdit = () => {
     this.setMode(MODE_EDIT, {testCase: this.testCase});
   }

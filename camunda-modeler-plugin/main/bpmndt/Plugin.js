@@ -51,7 +51,7 @@ export default class Plugin {
       });
 
       event.editorActions.register("bpmndtConfigure", () => {
-        this.modelerExtension.showPluginConfig();
+        this.modelerExtension.showPluginConfigModal();
       });
     });
 

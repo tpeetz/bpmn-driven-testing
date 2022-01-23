@@ -4,7 +4,8 @@ import {
   MODE_EDIT,
   MODE_MIGRATE,
   MODE_SELECT,
-  MODE_SHOW_COVERAGE
+  MODE_SHOW_COVERAGE,
+  MODE_SHOW_TEST_EXECUTION
 } from "../constants";
 
 import Button from "./component/Button";
@@ -16,6 +17,7 @@ export default class ModeButtonGroup extends React.Component {
     this._handleToggleMigrate = this._handleToggleMode.bind(this, MODE_MIGRATE);
     this._handleToggleSelect = this._handleToggleMode.bind(this, MODE_SELECT);
     this._handleToggleShowCoverage = this._handleToggleMode.bind(this, MODE_SHOW_COVERAGE);
+    this._handleToggleShowTestExecution = this._handleToggleMode.bind(this, MODE_SHOW_TEST_EXECUTION);
   }
 
   _handleHidePlugin = () => {
@@ -39,6 +41,7 @@ export default class ModeButtonGroup extends React.Component {
 
         {this._renderSelect(activeModes[MODE_SELECT])}
         {this._renderShowCoverage(activeModes[MODE_SHOW_COVERAGE])}
+        {this._renderShowTestExecution(activeModes[MODE_SHOW_TEST_EXECUTION])}
         {this._renderEdit(activeModes[MODE_EDIT])}
         {this._renderMigrate(activeModes[MODE_MIGRATE])}
       </div>
@@ -100,6 +103,24 @@ export default class ModeButtonGroup extends React.Component {
           title={`${active ? "Hide" : "Show"} coverage`}
         >
           <i className="fas fa-tasks"></i>
+        </Button>
+      </div>
+    )
+  }
+
+  _renderShowTestExecution(active) {
+    if (!active) {
+      return null;
+    }
+
+    return (
+      <div style={{float: "left", marginBottom: "0.5rem"}}>
+        <Button
+          onClick={this._handleToggleShowTestExecution}
+          style="primary"
+          title="Hide test execution"
+        >
+          <i className="fas fa-cog"></i>
         </Button>
       </div>
     )

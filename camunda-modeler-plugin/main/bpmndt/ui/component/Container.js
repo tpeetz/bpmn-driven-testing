@@ -92,17 +92,37 @@ export default class Container extends React.Component {
       return null;
     }
 
+    if (Array.isArray(model)) {
+      return (
+        <div className={className}>
+          {model.map((modelElement, index) => {
+            return (
+              <div key={index} style={{float: "left", marginLeft: "0.25em"}}>
+                {this.renderActionButton(modelElement, index)}
+              </div>
+            )
+          })}
+        </div>
+      )
+    } else {
+      return (
+        <div className={className}>
+          {this.renderActionButton(model)}
+        </div>
+      )
+    }
+  }
+
+  renderActionButton(model) {
     return (
-      <div className={className}>
-        <Button
-          onClick={model.onClick}
-          small
-          style={model.style}
-          title={model.title}
-        >
-          <i className={model.icon}></i>
-        </Button>
-      </div>
+      <Button
+        onClick={model.onClick}
+        small
+        style={model.style}
+        title={model.title}
+      >
+        <i className={model.icon}></i>
+      </Button>
     )
   }
 }

@@ -3,6 +3,7 @@ import {
   MODE_MIGRATE,
   MODE_SELECT,
   MODE_SHOW_COVERAGE,
+  MODE_SHOW_TEST_EXECUTION,
   MODE_VIEW,
   UNSUPPORTED_ELEMENT_TYPES
 } from "./constants";
@@ -20,6 +21,7 @@ import EditMode from "./ui/EditMode";
 import MigrateMode from "./ui/MigrateMode";
 import SelectMode from "./ui/SelectMode";
 import ShowCoverageMode from "./ui/ShowCoverageMode";
+import ShowTestExecutionMode from "./ui/ShowTestExecutionMode";
 import ViewMode from "./ui/ViewMode";
 
 export default class PluginController {
@@ -39,6 +41,7 @@ export default class PluginController {
     this._migrateMode = new MigrateMode(this);
     this._selectMode = new SelectMode(this);
     this._showCoverageMode = new ShowCoverageMode(this);
+    this._showTestExecutionMode = new ShowTestExecutionMode(this);
     this._viewMode = new ViewMode(this);
   }
 
@@ -160,6 +163,9 @@ export default class PluginController {
       case MODE_SHOW_COVERAGE:
         mode = this._showCoverageMode;
         break;
+      case MODE_SHOW_TEST_EXECUTION:
+        mode = this._showTestExecutionMode;
+        break;
       case MODE_VIEW:
         mode = this._viewMode;
         break;
@@ -207,6 +213,7 @@ export default class PluginController {
     activeModes[MODE_EDIT] = id === MODE_EDIT;
     activeModes[MODE_SELECT] = id === MODE_SELECT;
     activeModes[MODE_SHOW_COVERAGE] = id === MODE_SHOW_COVERAGE;
+    activeModes[MODE_SHOW_TEST_EXECUTION] = id === MODE_SHOW_TEST_EXECUTION;
 
     // special case
     activeModes[MODE_MIGRATE] = id === MODE_MIGRATE || isMigration;

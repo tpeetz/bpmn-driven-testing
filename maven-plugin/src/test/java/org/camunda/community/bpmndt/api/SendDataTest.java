@@ -79,6 +79,7 @@ public class SendDataTest {
     tc.finished(description);
 
     String sentData = serverSocket.getData();
+    assertThat(sentData, notNullValue());
 
     String[] r = sentData.split("\036");
     assertThat(r.length, is(11));

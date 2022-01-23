@@ -30,7 +30,8 @@ export const MODE_EDIT = 1;
 export const MODE_MIGRATE = 2;
 export const MODE_SELECT = 3;
 export const MODE_SHOW_COVERAGE = 4;
-export const MODE_VIEW = 5;
+export const MODE_SHOW_TEST_EXECUTION = 5;
+export const MODE_VIEW = 6;
 
 // class name of the plugin view's parent DOM node
 export const PLUGIN_VIEW_PARENT_CLASS_NAME = "bjs-container";

@@ -6,6 +6,10 @@ const receivedData = [];
 let server;
 
 function startServer({ host, port }) {
+  if (server) {
+    return;
+  }
+
   server = new net.Server();
 
   server.on("connection", (socket) => {

@@ -1,9 +1,7 @@
 import React from "react";
 
-import { Modal } from "camunda-modeler-plugin-helpers/components";
-
-import Button from "./ui/component/Button";
 import pluginTabState from "./PluginTabState";
+import ConfigurePluginModal from "./ui/ConfigurePluginModal";
 
 /**
  * Modeler extension that runs outside of BPMN JS.
@@ -52,33 +50,29 @@ export default class ModelerExtension extends React.Component {
       this.setState({pluginConfig: pluginConfig});
       this._notifyPluginConfigChanged(pluginConfig);
     });
+
+    this.getTestExecutionData = setInterval(() => {
+      const { ipcRenderer } = this.props.config.backend;
+
+      const data = ipcRenderer.sendSync("bpmndt-data");
+    }, 1000);
   }
 
   componentWillUnmount() {
-
+    clearTimeout(this.getTestExecutionData);
   }
 
-  showPluginConfig() {
+  showPluginConfigModal() {
     this.setState({pluginConfigShown: true});
   }
 
-  _handleHostChanged = (e) => {
+  _handlePluginConfigChanged = (pluginConfig) => {
     const { pluginConfig } = this.state;
     pluginConfig.testExecutionListener.host = e.target.value;
     this.setState({pluginConfig: pluginConfig});
   }
-  _handlePortChanged = (e) => {
-    const { pluginConfig } = this.state;
-    pluginConfig.testExecutionListener.port = e.target.value;
-    this.setState({pluginConfig: pluginConfig});
-  }
-  _handleEnabled = () => {
-    const { pluginConfig } = this.state;
-    pluginConfig.testExecutionListener.enabled = !pluginConfig.testExecutionListener.enabled;
-    this.setState({pluginConfig: pluginConfig});
-  }
 
-  _hidePluginConfig = () => {
+  _hidePluginConfigModal = () => {
     this.setState({pluginConfigShown: false});
   }
 
@@ -106,105 +100,17 @@ export default class ModelerExtension extends React.Component {
   }
 
   render() {
-    const { pluginConfig, pluginConfigShown } = this.state;
+    const { pluginConfig, pluginConfigModalShown } = this.state;
 
-    if (!pluginConfigShown) {
+    if (!pluginConfigModalShown) {
       return null;
     }
 
-    const { testExecutionListener } = pluginConfig;
-
-    return (
-      <Modal onClose={this._hidePluginConfig}>
-        <Modal.Title>
-          Configure BPMN Driven Testing Plugin
-        </Modal.Title>
-        <Modal.Body>
-          <div class="bpmndt">
-            <div className="container">
-              <div className="row">
-                <div className="col">
-                  <span>
-                    Test execution listener - a TCP server that receives data from JUnit test case executions
-                  </span>
-                </div>
-              </div>
-              <div className="row">
-                <div className="col">
-                  <span className="input-label">Host</span>
-                  <input
-                    onChange={this._handleHostChanged}
-                    placeholder="Host"
-                    type="text"
-                    value={testExecutionListener.host || ""}
-                  />
-                </div>
-                <div className="col">
-                  <span className="input-label">Port</span>
-                  <input
-                    onChange={this._handlePortChanged}
-                    placeholder="Port"
-                    type="text"
-                    value={testExecutionListener.port || ""}
-                  />
-                </div>
-              </div>
-              <div className="row">
-                <div className="col">
-                  {this._renderTestExecutionListenerEnabled(testExecutionListener.enabled)}
-                  <span className="input-label" style={{display: "inline-block"}}>Enabled?</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <div class="bpmndt">
-            <button
-              class="btn-sm btn-success"
-              onClick={this._savePluginConfig}
-              style={{width: "auto", marginRight: "0.5rem"}}
-              type="button"
-            >
-              Save
-            </button>
-            <button
-              class="btn-sm btn-secondary"
-              onClick={this._hidePluginConfig}
-              style={{width: "auto"}}
-              type="button"
-            >
-              Close
-            </button>
-          </div>
-        </Modal.Footer>
-      </Modal>
-    );
-  }
-
-  _renderTestExecutionListenerEnabled(enabled) {
-    if (enabled) {
-      return (
-        <Button
-          onClick={this._handleEnabled}
-          small
-          style="primary"
-          title="Disable test execution listener"
-        >
-          <i className="fas fa-check"></i>
-        </Button>
-      )
-    } else {
-      return (
-        <Button
-          onClick={this._handleEnabled}
-          small
-          style="secondary"
-          title="Enable test execution listener"
-        >
-          <i className="fas fa-check" style={{color: "#f8f8f8"}}></i>
-        </Button>
-      )
-    }
+    return <ConfigurePluginModal
+      onHide={this._hidePluginConfigModal}
+      onChange={this._handlePluginConfigChanged}
+      onSave={this._savePluginConfig}
+      pluginConfig={pluginConfig}
+    />;
   }
 }
