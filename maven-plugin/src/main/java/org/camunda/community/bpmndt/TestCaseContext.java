@@ -18,6 +18,7 @@ public class TestCaseContext {
   private final String testCaseName;
 
   private boolean duplicateName;
+  private String id;
 
   public TestCaseContext(BpmnSupport bpmnSupport, TestCase testCase) {
     this.bpmnSupport = bpmnSupport;
@@ -81,6 +82,10 @@ public class TestCaseContext {
     }
   }
 
+  public String getId() {
+    return id;
+  }
+
   public List<String> getInvalidFlowNodeIds() {
     return invalidFlowNodeIds;
   }
@@ -141,5 +146,9 @@ public class TestCaseContext {
 
   public void setDuplicateName(boolean duplicateName) {
     this.duplicateName = duplicateName;
+  }
+
+  public void setId(String id) {
+    this.id = id;
   }
 }

@@ -1,10 +1,14 @@
 package org.camunda.community.bpmndt.cmd;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.model.bpmn.instance.BoundaryEvent;
 import org.camunda.bpm.model.bpmn.instance.Error;
@@ -36,6 +40,8 @@ import com.squareup.javapoet.ClassName;
  * Builds a new test case context, used for code generation.
  */
 public class BuildTestCaseContext implements Function<TestCase, TestCaseContext> {
+
+  private static final String ID_HASH_ALGORITHM = "MD5";
 
   private final GeneratorContext gCtx;
   private final BpmnSupport bpmnSupport;
@@ -107,7 +113,30 @@ public class BuildTestCaseContext implements Function<TestCase, TestCaseContext>
       ctx.addActivity(activity);
     }
 
+    ctx.setId(buildId(flowNodeIds));
+
     return ctx;
+  }
+
+  protected String buildId(List<String> flowNodeIds) {
+    if (flowNodeIds.size() < 2) {
+      // do not build for empty or incomplete test cases
+      return null;
+    }
+
+    StringBuilder sb = new StringBuilder(flowNodeIds.stream().mapToInt(String::length).sum());
+    flowNodeIds.forEach(sb::append);
+
+    MessageDigest md;
+    try {
+      md = MessageDigest.getInstance(ID_HASH_ALGORITHM);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(String.format("%s could not be found", ID_HASH_ALGORITHM));
+    }
+
+    byte[] hash = md.digest(sb.toString().getBytes(StandardCharsets.UTF_8));
+
+    return new String(Hex.encodeHex(hash));
   }
 
   protected DefaultStrategy getStrategy(TestCaseActivity current) {

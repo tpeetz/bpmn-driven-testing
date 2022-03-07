@@ -127,7 +127,7 @@ public class GeneratorTest {
     TypeName superclass = ClassName.get(AbstractJUnit4TestCase.class);
     assertThat(typeSpec.superclass, equalTo(superclass));
     assertThat(typeSpec.fieldSpecs, hasSize(0));
-    assertThat(typeSpec.methodSpecs, hasSize(6));
+    assertThat(typeSpec.methodSpecs, hasSize(7));
     assertThat(typeSpec.methodSpecs.get(0).name, equalTo("starting"));
     assertThat(typeSpec.methodSpecs.get(1).name, equalTo("execute"));
 

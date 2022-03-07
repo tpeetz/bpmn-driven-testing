@@ -40,9 +40,9 @@ public class TestExecutionData {
     records.add(new ActivityRecord(RecordType.ACTIVITY_START, activityId));
   }
 
-  protected void recordTest(String testName, String testMethodName, String testCaseName) {
+  protected void recordTest(String testCaseId, String testName, String testMethodName) {
     TestRecord testRecord = new TestRecord();
-    testRecord.testCaseName = testCaseName;
+    testRecord.testCaseId = testCaseId;
     testRecord.testMethodName = testMethodName;
     testRecord.testName = testName;
 
@@ -95,6 +95,9 @@ public class TestExecutionData {
     TEST_RESULT
   }
 
+  /**
+   * Abstract super class for records of any type.
+   */
   public static abstract class Record {
 
     private final RecordType type;
@@ -155,7 +158,7 @@ public class TestExecutionData {
 
   public static class TestRecord extends Record {
 
-    private String testCaseName;
+    private String testCaseId;
     private String testMethodName;
     private String testName;
     
@@ -167,15 +170,11 @@ public class TestExecutionData {
     protected void encode(StringBuilder sb) {
       sb.append(getType().name());
       sb.append(VALUE_SEPARATOR);
+      sb.append(testCaseId);
+      sb.append(VALUE_SEPARATOR);
       sb.append(testName);
       sb.append(VALUE_SEPARATOR);
       sb.append(testMethodName);
-      sb.append(VALUE_SEPARATOR);
-      sb.append(testCaseName);
-    }
-
-    public String getTestCaseName() {
-      return testCaseName;
     }
 
     public String getTestName() {

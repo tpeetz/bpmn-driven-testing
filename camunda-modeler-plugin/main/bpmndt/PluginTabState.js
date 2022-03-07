@@ -28,6 +28,11 @@ class PluginTabState {
     }
   }
 
+  getActiveTab() {
+    const { activeTabId, tabs } = this;
+    return tabs[activeTabId];
+  }
+
   register(plugin) {
     const { activeTabId, tabs } = this;
 

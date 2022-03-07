@@ -1,3 +1,5 @@
+import md5 from "crypto-js/md5";
+
 export default class TestCase {
   constructor(data = {path: []}) {
     const { description, name, path } = data;
@@ -39,8 +41,11 @@ export default class TestCase {
     }
   }
 
+  get id() {
+    return md5(this.path.join("")).toString();
+  }
+
   get valid() {
-    const { problems } = this;
-    return problems === undefined || problems.length === 0;
+    return this.problems === undefined || this.problems.length === 0;
   }
 }

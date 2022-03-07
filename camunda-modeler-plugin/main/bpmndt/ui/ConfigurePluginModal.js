@@ -2,28 +2,28 @@ import React from "react";
 
 import { Modal } from "camunda-modeler-plugin-helpers/components";
 
-import Button from "./ui/component/Button";
+import Button from "./component/Button";
 
 export default class ConfigurePluginModal extends React.Component {
   _handleHostChanged = (e) => {
-    const { onPluginConfigChanged, pluginConfig } = this.props;
+    const { onChange, pluginConfig } = this.props;
     pluginConfig.testExecutionListener.host = e.target.value;
-    onPluginConfigChanged(pluginConfig);
+    onChange(pluginConfig);
   }
   _handlePortChanged = (e) => {
-    const { onPluginConfigChanged, pluginConfig } = this.props;
+    const { onChange, pluginConfig } = this.props;
     pluginConfig.testExecutionListener.port = e.target.value;
-    onPluginConfigChanged(pluginConfig);
+    onChange(pluginConfig);
   }
   _handleEnabled = () => {
-    const { onPluginConfigChanged, pluginConfig } = this.props;
+    const { onChange, pluginConfig } = this.props;
     pluginConfig.testExecutionListener.enabled = !pluginConfig.testExecutionListener.enabled;
-    onPluginConfigChanged(pluginConfig);
+    onChange(pluginConfig);
   }
 
   
   render() {
-    const { onHide, onSave, pluginConfig } = this.props;
+    const { onHide, pluginConfig } = this.props;
     const { testExecutionListener } = pluginConfig;
 
     return (
@@ -72,14 +72,6 @@ export default class ConfigurePluginModal extends React.Component {
         </Modal.Body>
         <Modal.Footer>
           <div class="bpmndt">
-            <button
-              class="btn-sm btn-success"
-              onClick={onSave}
-              style={{width: "auto", marginRight: "0.5rem"}}
-              type="button"
-            >
-              Save
-            </button>
             <button
               class="btn-sm btn-secondary"
               onClick={onHide}

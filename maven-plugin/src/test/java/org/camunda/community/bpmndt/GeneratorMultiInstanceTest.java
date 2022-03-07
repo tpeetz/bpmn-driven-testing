@@ -83,10 +83,10 @@ public class GeneratorMultiInstanceTest {
     assertThat(typeSpec.fieldSpecs, hasSize(1));
     assertThat(typeSpec.fieldSpecs.get(0).name, equalTo("multiInstanceCallActivity"));
     assertThat(typeSpec.fieldSpecs.get(0).type, equalTo(multiInstanceHandlerType));
-    assertThat(typeSpec.methodSpecs, hasSize(7));
-    assertThat(typeSpec.methodSpecs.get(6).javadoc.isEmpty(), is(false));
-    assertThat(typeSpec.methodSpecs.get(6).name, equalTo("handleMultiInstanceCallActivity"));
-    assertThat(typeSpec.methodSpecs.get(6).returnType, equalTo(multiInstanceHandlerType));
+    assertThat(typeSpec.methodSpecs, hasSize(8));
+    assertThat(typeSpec.methodSpecs.get(7).javadoc.isEmpty(), is(false));
+    assertThat(typeSpec.methodSpecs.get(7).name, equalTo("handleMultiInstanceCallActivity"));
+    assertThat(typeSpec.methodSpecs.get(7).returnType, equalTo(multiInstanceHandlerType));
 
     JavaFile javaFile = result.getFiles().get(1);
     assertThat(javaFile.packageName, equalTo("org.example.callactivity"));
@@ -177,10 +177,10 @@ public class GeneratorMultiInstanceTest {
     assertThat(typeSpec.fieldSpecs, hasSize(1));
     assertThat(typeSpec.fieldSpecs.get(0).name, equalTo("multiInstanceManualTask"));
     assertThat(typeSpec.fieldSpecs.get(0).type, equalTo(multiInstanceHandlerType));
-    assertThat(typeSpec.methodSpecs, hasSize(7));
-    assertThat(typeSpec.methodSpecs.get(6).javadoc.isEmpty(), is(false));
-    assertThat(typeSpec.methodSpecs.get(6).name, equalTo("handleMultiInstanceManualTask"));
-    assertThat(typeSpec.methodSpecs.get(6).returnType, equalTo(multiInstanceHandlerType));
+    assertThat(typeSpec.methodSpecs, hasSize(8));
+    assertThat(typeSpec.methodSpecs.get(7).javadoc.isEmpty(), is(false));
+    assertThat(typeSpec.methodSpecs.get(7).name, equalTo("handleMultiInstanceManualTask"));
+    assertThat(typeSpec.methodSpecs.get(7).returnType, equalTo(multiInstanceHandlerType));
 
     JavaFile javaFile = result.getFiles().get(1);
     assertThat(javaFile.packageName, equalTo("org.example.sequential"));
@@ -242,10 +242,10 @@ public class GeneratorMultiInstanceTest {
     assertThat(typeSpec.fieldSpecs, hasSize(1));
     assertThat(typeSpec.fieldSpecs.get(0).name, equalTo("multiInstanceUserTask"));
     assertThat(typeSpec.fieldSpecs.get(0).type, equalTo(multiInstanceHandlerType));
-    assertThat(typeSpec.methodSpecs, hasSize(7));
-    assertThat(typeSpec.methodSpecs.get(6).javadoc.isEmpty(), is(false));
-    assertThat(typeSpec.methodSpecs.get(6).name, equalTo("handleMultiInstanceUserTask"));
-    assertThat(typeSpec.methodSpecs.get(6).returnType, equalTo(multiInstanceHandlerType));
+    assertThat(typeSpec.methodSpecs, hasSize(8));
+    assertThat(typeSpec.methodSpecs.get(7).javadoc.isEmpty(), is(false));
+    assertThat(typeSpec.methodSpecs.get(7).name, equalTo("handleMultiInstanceUserTask"));
+    assertThat(typeSpec.methodSpecs.get(7).returnType, equalTo(multiInstanceHandlerType));
 
     JavaFile javaFile = result.getFiles().get(1);
     assertThat(javaFile.packageName, equalTo("org.example.usertask"));

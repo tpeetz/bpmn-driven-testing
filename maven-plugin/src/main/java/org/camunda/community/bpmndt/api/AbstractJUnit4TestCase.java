@@ -84,7 +84,7 @@ public abstract class AbstractJUnit4TestCase extends TestWatcher {
       annotationDeploymentId = annotationDeploymentSetUp(processEngine, testClass, testMethodName);
     }
 
-    instance.getData().recordTest(testName, testMethodName, testCaseName);
+    instance.getData().recordTest(getId(), testName, testMethodName);
   }
 
   @Override
@@ -202,6 +202,16 @@ public abstract class AbstractJUnit4TestCase extends TestWatcher {
    * @return The end activity ID.
    */
   public abstract String getEnd();
+
+  /**
+   * Returns the ID of the test case, which is built by concating and hashing the IDs of all
+   * activities that are passed by the test case.
+   * 
+   * @return The test case ID.
+   */
+  protected String getId() {
+    return null;
+  }
 
   /**
    * Provides the hostname of the test execution listener - a TCP server.

@@ -54,6 +54,10 @@ public class GenerateJUnit4TestCase implements Consumer<TestCaseContext> {
     classBuilder.addMethod(buildGetBpmnResourceName(gCtx, ctx));
     classBuilder.addMethod(buildGetEnd(ctx));
 
+    if (ctx.getId() != null) {
+      classBuilder.addMethod(buildGetId(ctx));
+    }
+
     if (gCtx.getTestExecutionListenerHost() != null && gCtx.getTestExecutionListenerPort() > 0) {
       classBuilder.addMethod(buildGetListenerHost());
       classBuilder.addMethod(buildGetListenerPort());
@@ -144,6 +148,15 @@ public class GenerateJUnit4TestCase implements Consumer<TestCaseContext> {
         .addModifiers(Modifier.PUBLIC)
         .returns(String.class)
         .addStatement("return $S", end != null ? end.getId() : null)
+        .build();
+  }
+
+  protected MethodSpec buildGetId(TestCaseContext ctx) {
+    return MethodSpec.methodBuilder("getId")
+        .addAnnotation(Override.class)
+        .addModifiers(Modifier.PROTECTED)
+        .returns(String.class)
+        .addStatement("return $S", ctx.getId())
         .build();
   }
 

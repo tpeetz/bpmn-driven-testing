@@ -149,34 +149,18 @@ export default class PluginController {
   }
 
   setMode(modeId, ctx) {
-    let mode;
-    switch (modeId) {
-      case MODE_EDIT:
-        mode = this._editMode;
-        break;
-      case MODE_MIGRATE:
-        mode = this._migrateMode;
-        break;
-      case MODE_SELECT:
-        mode = this._selectMode
-        break;
-      case MODE_SHOW_COVERAGE:
-        mode = this._showCoverageMode;
-        break;
-      case MODE_SHOW_TEST_EXECUTION:
-        mode = this._showTestExecutionMode;
-        break;
-      case MODE_VIEW:
-        mode = this._viewMode;
-        break;
-      default:
-        throw new Error(`Unsupported mode '${modeId}'`);
-    }
-
-    this.mode = mode;
+    this.mode = this._getModeById(modeId);
 
     // triggers update
-    mode.setState(mode.computeInitialState(ctx));
+    this.mode.setState(this.mode.computeInitialState(ctx));
+  }
+
+  setTestExecutionData() {
+    const { testCases } = this;
+
+    for (const testCase of testCases) {
+      console.log(testCase.id);
+    }
   }
 
   update() {
@@ -228,6 +212,25 @@ export default class PluginController {
       showView: !hideView,
       viewModel: mode.computeViewModel()
     };
+  }
+
+  _getModeById(modeId) {
+    switch (modeId) {
+      case MODE_EDIT:
+        return this._editMode;
+      case MODE_MIGRATE:
+        return this._migrateMode;
+      case MODE_SELECT:
+        return this._selectMode
+      case MODE_SHOW_COVERAGE:
+        return this._showCoverageMode;
+      case MODE_SHOW_TEST_EXECUTION:
+        return this._showTestExecutionMode;
+      case MODE_VIEW:
+        return this._viewMode;
+      default:
+        throw new Error(`Unsupported mode '${modeId}'`);
+    }
   }
 
   _validateTestCases() {

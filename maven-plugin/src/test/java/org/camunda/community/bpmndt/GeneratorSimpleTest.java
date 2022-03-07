@@ -91,7 +91,7 @@ public class GeneratorSimpleTest {
     TypeName superclass = ClassName.get(AbstractJUnit4TestCase.class);
     assertThat(typeSpec.superclass, equalTo(superclass));
     assertThat(typeSpec.fieldSpecs, hasSize(0));
-    assertThat(typeSpec.methodSpecs, hasSize(6));
+    assertThat(typeSpec.methodSpecs, hasSize(7));
     assertThat(typeSpec.methodSpecs.get(0).name, equalTo("starting"));
     assertThat(typeSpec.methodSpecs.get(0).parameters, hasSize(1));
     assertThat(typeSpec.methodSpecs.get(0).parameters.get(0).name, equalTo("description"));
@@ -104,10 +104,13 @@ public class GeneratorSimpleTest {
     assertThat(typeSpec.methodSpecs.get(2).code.toString(), containsString("\"simple.bpmn\""));
     assertThat(typeSpec.methodSpecs.get(3).name, equalTo("getEnd"));
     assertThat(typeSpec.methodSpecs.get(3).code.toString(), containsString("\"endEvent\""));
-    assertThat(typeSpec.methodSpecs.get(4).name, equalTo("getProcessDefinitionKey"));
-    assertThat(typeSpec.methodSpecs.get(4).code.toString(), containsString("\"simple\""));
-    assertThat(typeSpec.methodSpecs.get(5).name, equalTo("getStart"));
-    assertThat(typeSpec.methodSpecs.get(5).code.toString(), containsString("\"startEvent\""));
+    assertThat(typeSpec.methodSpecs.get(4).name, equalTo("getId"));
+    assertThat(typeSpec.methodSpecs.get(4).modifiers, hasItem(Modifier.PROTECTED));
+    assertThat(typeSpec.methodSpecs.get(4).code.toString(), containsString("return \"c804951cd6db915010938ef5f5200502\""));
+    assertThat(typeSpec.methodSpecs.get(5).name, equalTo("getProcessDefinitionKey"));
+    assertThat(typeSpec.methodSpecs.get(5).code.toString(), containsString("\"simple\""));
+    assertThat(typeSpec.methodSpecs.get(6).name, equalTo("getStart"));
+    assertThat(typeSpec.methodSpecs.get(6).code.toString(), containsString("\"startEvent\""));
   }
 
   /**
@@ -133,7 +136,7 @@ public class GeneratorSimpleTest {
 
     assertThat(typeSpec.superclass, equalTo(ClassName.get(AbstractJUnit4TestCase.class)));
     assertThat(typeSpec.fieldSpecs, hasSize(0));
-    assertThat(typeSpec.methodSpecs, hasSize(7));
+    assertThat(typeSpec.methodSpecs, hasSize(8));
     assertThat(typeSpec.methodSpecs.get(0).name, equalTo("starting"));
     assertThat(typeSpec.methodSpecs.get(0).parameters, hasSize(1));
     assertThat(typeSpec.methodSpecs.get(0).parameters.get(0).name, equalTo("description"));
@@ -146,13 +149,16 @@ public class GeneratorSimpleTest {
     assertThat(typeSpec.methodSpecs.get(2).code.toString(), containsString("\"simple.bpmn\""));
     assertThat(typeSpec.methodSpecs.get(3).name, equalTo("getEnd"));
     assertThat(typeSpec.methodSpecs.get(3).code.toString(), containsString("\"endEvent\""));
-    assertThat(typeSpec.methodSpecs.get(4).name, equalTo("getProcessDefinitionKey"));
-    assertThat(typeSpec.methodSpecs.get(4).code.toString(), containsString("\"simple\""));
-    assertThat(typeSpec.methodSpecs.get(5).name, equalTo("getStart"));
-    assertThat(typeSpec.methodSpecs.get(5).code.toString(), containsString("\"startEvent\""));
-    assertThat(typeSpec.methodSpecs.get(6).name, equalTo("isSpringEnabled"));
-    assertThat(typeSpec.methodSpecs.get(6).modifiers, hasItem(Modifier.PROTECTED));
-    assertThat(typeSpec.methodSpecs.get(6).code.toString(), containsString("return true"));
+    assertThat(typeSpec.methodSpecs.get(4).name, equalTo("getId"));
+    assertThat(typeSpec.methodSpecs.get(4).modifiers, hasItem(Modifier.PROTECTED));
+    assertThat(typeSpec.methodSpecs.get(4).code.toString(), containsString("return \"c804951cd6db915010938ef5f5200502\""));
+    assertThat(typeSpec.methodSpecs.get(5).name, equalTo("getProcessDefinitionKey"));
+    assertThat(typeSpec.methodSpecs.get(5).code.toString(), containsString("\"simple\""));
+    assertThat(typeSpec.methodSpecs.get(6).name, equalTo("getStart"));
+    assertThat(typeSpec.methodSpecs.get(6).code.toString(), containsString("\"startEvent\""));
+    assertThat(typeSpec.methodSpecs.get(7).name, equalTo("isSpringEnabled"));
+    assertThat(typeSpec.methodSpecs.get(7).modifiers, hasItem(Modifier.PROTECTED));
+    assertThat(typeSpec.methodSpecs.get(7).code.toString(), containsString("return true"));
   }
 
   @Test
@@ -166,11 +172,11 @@ public class GeneratorSimpleTest {
     assertThat(typeSpec.fieldSpecs.get(0).type, equalTo(JOB_HANDLER));
     assertThat(typeSpec.fieldSpecs.get(1).name, equalTo("endEventBefore"));
     assertThat(typeSpec.fieldSpecs.get(1).type, equalTo(JOB_HANDLER));
-    assertThat(typeSpec.methodSpecs, hasSize(8));
-    assertThat(typeSpec.methodSpecs.get(6).name, equalTo("handleStartEventAfter"));
-    assertThat(typeSpec.methodSpecs.get(6).returnType, equalTo(JOB_HANDLER));
-    assertThat(typeSpec.methodSpecs.get(7).name, equalTo("handleEndEventBefore"));
+    assertThat(typeSpec.methodSpecs, hasSize(9));
+    assertThat(typeSpec.methodSpecs.get(7).name, equalTo("handleStartEventAfter"));
     assertThat(typeSpec.methodSpecs.get(7).returnType, equalTo(JOB_HANDLER));
+    assertThat(typeSpec.methodSpecs.get(8).name, equalTo("handleEndEventBefore"));
+    assertThat(typeSpec.methodSpecs.get(8).returnType, equalTo(JOB_HANDLER));
 
     containsCode(typeSpec.methodSpecs.get(0))
         .contains(String.format("startEventAfter = new %s(getProcessEngine(), \"startEvent\");", JOB_HANDLER))
@@ -196,9 +202,9 @@ public class GeneratorSimpleTest {
     assertThat(typeSpec.fieldSpecs.get(0).type, equalTo(JOB_HANDLER));
     assertThat(typeSpec.fieldSpecs.get(1).name, equalTo("callActivity"));
     assertThat(typeSpec.fieldSpecs.get(1).type, equalTo(CALL_ACTIVITY_HANDLER));
-    assertThat(typeSpec.methodSpecs, hasSize(7));
-    assertThat(typeSpec.methodSpecs.get(6).name, equalTo("handleCallActivity"));
-    assertThat(typeSpec.methodSpecs.get(6).returnType, equalTo(CALL_ACTIVITY_HANDLER));
+    assertThat(typeSpec.methodSpecs, hasSize(8));
+    assertThat(typeSpec.methodSpecs.get(7).name, equalTo("handleCallActivity"));
+    assertThat(typeSpec.methodSpecs.get(7).returnType, equalTo(CALL_ACTIVITY_HANDLER));
 
     String expected = "callActivity = new %s(instance, \"callActivity\");";
     containsCode(typeSpec.methodSpecs.get(0)).contains(String.format(expected, CALL_ACTIVITY_HANDLER));
@@ -210,7 +216,7 @@ public class GeneratorSimpleTest {
     assertThat(result.getFiles(), hasSize(1));
 
     TypeSpec typeSpec = result.getFiles().get(0).typeSpec;
-    assertThat(typeSpec.methodSpecs, hasSize(6));
+    assertThat(typeSpec.methodSpecs, hasSize(7));
   }
 
   @Test
@@ -222,9 +228,9 @@ public class GeneratorSimpleTest {
     assertThat(typeSpec.fieldSpecs, hasSize(1));
     assertThat(typeSpec.fieldSpecs.get(0).name, equalTo("conditionalCatchEvent"));
     assertThat(typeSpec.fieldSpecs.get(0).type, equalTo(EVENT_HANDLER));
-    assertThat(typeSpec.methodSpecs, hasSize(7));
-    assertThat(typeSpec.methodSpecs.get(6).name, equalTo("handleConditionalCatchEvent"));
-    assertThat(typeSpec.methodSpecs.get(6).returnType, equalTo(EVENT_HANDLER));
+    assertThat(typeSpec.methodSpecs, hasSize(8));
+    assertThat(typeSpec.methodSpecs.get(7).name, equalTo("handleConditionalCatchEvent"));
+    assertThat(typeSpec.methodSpecs.get(7).returnType, equalTo(EVENT_HANDLER));
 
     String expected = "conditionalCatchEvent = new %s(getProcessEngine(), \"conditionalCatchEvent\", null);";
     containsCode(typeSpec.methodSpecs.get(0)).contains(String.format(expected, EVENT_HANDLER));
@@ -240,9 +246,9 @@ public class GeneratorSimpleTest {
     assertThat(typeSpec.fieldSpecs, hasSize(1));
     assertThat(typeSpec.fieldSpecs.get(0).name, equalTo("externalTask"));
     assertThat(typeSpec.fieldSpecs.get(0).type, equalTo(EXTERNAL_TASK_HANDLER));
-    assertThat(typeSpec.methodSpecs, hasSize(7));
-    assertThat(typeSpec.methodSpecs.get(6).name, equalTo("handleExternalTask"));
-    assertThat(typeSpec.methodSpecs.get(6).returnType, equalTo(EXTERNAL_TASK_HANDLER));
+    assertThat(typeSpec.methodSpecs, hasSize(8));
+    assertThat(typeSpec.methodSpecs.get(7).name, equalTo("handleExternalTask"));
+    assertThat(typeSpec.methodSpecs.get(7).returnType, equalTo(EXTERNAL_TASK_HANDLER));
 
     String expected = "externalTask = new %s(getProcessEngine(), \"externalTask\", \"test-topic\");";
     containsCode(typeSpec.methodSpecs.get(0)).contains(String.format(expected, EXTERNAL_TASK_HANDLER));
@@ -258,9 +264,9 @@ public class GeneratorSimpleTest {
     assertThat(typeSpec.fieldSpecs, hasSize(1));
     assertThat(typeSpec.fieldSpecs.get(0).name, equalTo("messageCatchEvent"));
     assertThat(typeSpec.fieldSpecs.get(0).type, equalTo(EVENT_HANDLER));
-    assertThat(typeSpec.methodSpecs, hasSize(7));
-    assertThat(typeSpec.methodSpecs.get(6).name, equalTo("handleMessageCatchEvent"));
-    assertThat(typeSpec.methodSpecs.get(6).returnType, equalTo(EVENT_HANDLER));
+    assertThat(typeSpec.methodSpecs, hasSize(8));
+    assertThat(typeSpec.methodSpecs.get(7).name, equalTo("handleMessageCatchEvent"));
+    assertThat(typeSpec.methodSpecs.get(7).returnType, equalTo(EVENT_HANDLER));
 
     String expected = "messageCatchEvent = new %s(getProcessEngine(), \"messageCatchEvent\", \"simpleMessage\");";
     containsCode(typeSpec.methodSpecs.get(0)).contains(String.format(expected, EVENT_HANDLER));
@@ -276,9 +282,9 @@ public class GeneratorSimpleTest {
     assertThat(typeSpec.fieldSpecs, hasSize(1));
     assertThat(typeSpec.fieldSpecs.get(0).name, equalTo("messageThrowEvent"));
     assertThat(typeSpec.fieldSpecs.get(0).type, equalTo(EXTERNAL_TASK_HANDLER));
-    assertThat(typeSpec.methodSpecs, hasSize(7));
-    assertThat(typeSpec.methodSpecs.get(6).name, equalTo("handleMessageThrowEvent"));
-    assertThat(typeSpec.methodSpecs.get(6).returnType, equalTo(EXTERNAL_TASK_HANDLER));
+    assertThat(typeSpec.methodSpecs, hasSize(8));
+    assertThat(typeSpec.methodSpecs.get(7).name, equalTo("handleMessageThrowEvent"));
+    assertThat(typeSpec.methodSpecs.get(7).returnType, equalTo(EXTERNAL_TASK_HANDLER));
 
     String expected = "messageThrowEvent = new %s(getProcessEngine(), \"messageThrowEvent\", \"test-message\");";
     containsCode(typeSpec.methodSpecs.get(0)).contains(String.format(expected, EXTERNAL_TASK_HANDLER));
@@ -294,9 +300,9 @@ public class GeneratorSimpleTest {
     assertThat(typeSpec.fieldSpecs, hasSize(1));
     assertThat(typeSpec.fieldSpecs.get(0).name, equalTo("receiveTask"));
     assertThat(typeSpec.fieldSpecs.get(0).type, equalTo(EVENT_HANDLER));
-    assertThat(typeSpec.methodSpecs, hasSize(7));
-    assertThat(typeSpec.methodSpecs.get(6).name, equalTo("handleReceiveTask"));
-    assertThat(typeSpec.methodSpecs.get(6).returnType, equalTo(EVENT_HANDLER));
+    assertThat(typeSpec.methodSpecs, hasSize(8));
+    assertThat(typeSpec.methodSpecs.get(7).name, equalTo("handleReceiveTask"));
+    assertThat(typeSpec.methodSpecs.get(7).returnType, equalTo(EVENT_HANDLER));
 
     String expected = "receiveTask = new %s(getProcessEngine(), \"receiveTask\", \"simpleMessage\");";
     containsCode(typeSpec.methodSpecs.get(0)).contains(String.format(expected, EVENT_HANDLER));
@@ -312,9 +318,9 @@ public class GeneratorSimpleTest {
     assertThat(typeSpec.fieldSpecs, hasSize(1));
     assertThat(typeSpec.fieldSpecs.get(0).name, equalTo("signalCatchEvent"));
     assertThat(typeSpec.fieldSpecs.get(0).type, equalTo(ClassName.get(EventHandler.class)));
-    assertThat(typeSpec.methodSpecs, hasSize(7));
-    assertThat(typeSpec.methodSpecs.get(6).name, equalTo("handleSignalCatchEvent"));
-    assertThat(typeSpec.methodSpecs.get(6).returnType, equalTo(ClassName.get(EventHandler.class)));
+    assertThat(typeSpec.methodSpecs, hasSize(8));
+    assertThat(typeSpec.methodSpecs.get(7).name, equalTo("handleSignalCatchEvent"));
+    assertThat(typeSpec.methodSpecs.get(7).returnType, equalTo(ClassName.get(EventHandler.class)));
 
     String expected = "signalCatchEvent = new %s(getProcessEngine(), \"signalCatchEvent\", \"simpleSignal\");";
     containsCode(typeSpec.methodSpecs.get(0)).contains(String.format(expected, EVENT_HANDLER));
@@ -331,7 +337,7 @@ public class GeneratorSimpleTest {
     assertThat(result.getFiles().get(1).typeSpec.name, equalTo("TC_startEvent__subProcessEndEvent"));
 
     TypeSpec typeSpec = result.getFiles().get(0).typeSpec;
-    assertThat(typeSpec.methodSpecs, hasSize(6));
+    assertThat(typeSpec.methodSpecs, hasSize(7));
 
     containsCode(typeSpec.methodSpecs.get(1))
         .contains("// startEvent: subProcessStartEvent")
@@ -349,9 +355,9 @@ public class GeneratorSimpleTest {
     assertThat(typeSpec.fieldSpecs, hasSize(1));
     assertThat(typeSpec.fieldSpecs.get(0).name, equalTo("timerCatchEvent"));
     assertThat(typeSpec.fieldSpecs.get(0).type, equalTo(JOB_HANDLER));
-    assertThat(typeSpec.methodSpecs, hasSize(7));
-    assertThat(typeSpec.methodSpecs.get(6).name, equalTo("handleTimerCatchEvent"));
-    assertThat(typeSpec.methodSpecs.get(6).returnType, equalTo(JOB_HANDLER));
+    assertThat(typeSpec.methodSpecs, hasSize(8));
+    assertThat(typeSpec.methodSpecs.get(7).name, equalTo("handleTimerCatchEvent"));
+    assertThat(typeSpec.methodSpecs.get(7).returnType, equalTo(JOB_HANDLER));
 
     String expected = "timerCatchEvent = new %s(getProcessEngine(), \"timerCatchEvent\");";
     containsCode(typeSpec.methodSpecs.get(0)).contains(String.format(expected, JOB_HANDLER));
@@ -367,9 +373,9 @@ public class GeneratorSimpleTest {
     assertThat(typeSpec.fieldSpecs, hasSize(1));
     assertThat(typeSpec.fieldSpecs.get(0).name, equalTo("userTask"));
     assertThat(typeSpec.fieldSpecs.get(0).type, equalTo(USER_TASK_HANDLER));
-    assertThat(typeSpec.methodSpecs, hasSize(7));
-    assertThat(typeSpec.methodSpecs.get(6).name, equalTo("handleUserTask"));
-    assertThat(typeSpec.methodSpecs.get(6).returnType, equalTo(USER_TASK_HANDLER));
+    assertThat(typeSpec.methodSpecs, hasSize(8));
+    assertThat(typeSpec.methodSpecs.get(7).name, equalTo("handleUserTask"));
+    assertThat(typeSpec.methodSpecs.get(7).returnType, equalTo(USER_TASK_HANDLER));
 
     String expected = "userTask = new %s(getProcessEngine(), \"userTask\");";
     containsCode(typeSpec.methodSpecs.get(0)).contains(String.format(expected, USER_TASK_HANDLER));

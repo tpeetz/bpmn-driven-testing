@@ -1,7 +1,11 @@
 import React from "react";
 
 import pluginTabState from "./PluginTabState";
+import TestExecutionData from "./TestExecutionData";
 import ConfigurePluginModal from "./ui/ConfigurePluginModal";
+
+const CHANNEL_CONFIG_CHANGE = "bpmndt-config-change";
+const CHANNEL_TEST_EXECUTION_DATA_SYNC = "bpmndt-test-execution-data-sync";
 
 /**
  * Modeler extension that runs outside of BPMN JS.
@@ -11,14 +15,15 @@ export default class ModelerExtension extends React.Component {
     super(props);
 
     this.state = {
-      pluginConfigShown: false,
+      pluginConfig: null,
+      pluginConfigModalShown: false,
     }
 
     this.defaultPluginConfig = {
       testExecutionListener: {
-        enabled: false,
         host: "localhost",
-        port: 8000
+        port: 8000,
+        enabled: false
       }
     };
 
@@ -47,33 +52,46 @@ export default class ModelerExtension extends React.Component {
     this.props.config.getForPlugin("bpmndt", "config").then(config => {
       const pluginConfig = config || this.defaultPluginConfig;
 
+      // test execution listener should be disabled on start
+      pluginConfig.testExecutionListener.enabled = false;
+
       this.setState({pluginConfig: pluginConfig});
       this._notifyPluginConfigChanged(pluginConfig);
     });
-
-    this.getTestExecutionData = setInterval(() => {
-      const { ipcRenderer } = this.props.config.backend;
-
-      const data = ipcRenderer.sendSync("bpmndt-data");
-    }, 1000);
   }
 
   componentWillUnmount() {
-    clearTimeout(this.getTestExecutionData);
+    this._stopTestExecutionDataSync();
   }
 
   showPluginConfigModal() {
-    this.setState({pluginConfigShown: true});
+    this.setState({pluginConfigModalShown: true});
   }
 
   _handlePluginConfigChanged = (pluginConfig) => {
-    const { pluginConfig } = this.state;
-    pluginConfig.testExecutionListener.host = e.target.value;
     this.setState({pluginConfig: pluginConfig});
+
+    const pluginConfigToSave = {
+      testExecutionListener: {
+        host: pluginConfig.testExecutionListener.host,
+        port: pluginConfig.testExecutionListener.port
+      }
+    };
+
+    // save plugin configuration
+    this.props.config.setForPlugin("bpmndt", "config", pluginConfigToSave).then(() => {
+      this._notifyPluginConfigChanged(pluginConfig);
+    });
+
+    if (pluginConfig.testExecutionListener.enabled) {
+      this._startTestExecutionDataSync();
+    } else {
+      this._stopTestExecutionDataSync();
+    }
   }
 
   _hidePluginConfigModal = () => {
-    this.setState({pluginConfigShown: false});
+    this.setState({pluginConfigModalShown: false});
   }
 
   /**
@@ -85,18 +103,33 @@ export default class ModelerExtension extends React.Component {
   _notifyPluginConfigChanged(pluginConfig) {
     const { ipcRenderer } = this.props.config.backend;
 
-    ipcRenderer.sendSync("bpmndt-config-changed", pluginConfig);
+    ipcRenderer.sendSync(CHANNEL_CONFIG_CHANGE, pluginConfig);
   }
 
-  _savePluginConfig =() => {
-    const { pluginConfig } = this.state;
+  _startTestExecutionDataSync() {
+    const { ipcRenderer } = this.props.config.backend;
 
-    // save plugin configuration
-    this.props.config.setForPlugin("bpmndt", "config", pluginConfig).then(() => {
-      this._notifyPluginConfigChanged(pluginConfig);
-    });
+    this.getTestExecutionData = setInterval(() => {
+      const rawData = ipcRenderer.sendSync(CHANNEL_TEST_EXECUTION_DATA_SYNC);
+      if (rawData.length === 0) {
+        return;
+      }
 
-    this._hidePluginConfig();
+      // TODO
+
+      const tab = pluginTabState.getActiveTab();
+      if (tab === undefined) {
+        return;
+      }
+
+      tab.plugin.controller.setTestExecutionData();
+    }, 2000);
+  }
+
+  _stopTestExecutionDataSync() {
+    if (this.getTestExecutionData) {
+      clearInterval(this.getTestExecutionData);
+    }
   }
 
   render() {
@@ -109,7 +142,6 @@ export default class ModelerExtension extends React.Component {
     return <ConfigurePluginModal
       onHide={this._hidePluginConfigModal}
       onChange={this._handlePluginConfigChanged}
-      onSave={this._savePluginConfig}
       pluginConfig={pluginConfig}
     />;
   }

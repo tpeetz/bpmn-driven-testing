@@ -144,6 +144,11 @@ public class SendDataTest {
     }
 
     @Override
+    protected String getId() {
+      return "2de2de15f09c2a3d7cfc38fd3341b7af";
+    }
+
+    @Override
     protected String getListenerHost() {
       return host;
     }
@@ -173,8 +178,7 @@ public class SendDataTest {
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
-      // TODO Auto-generated method stub
-
+      // nothing to do here
     }
   }
 
@@ -182,8 +186,7 @@ public class SendDataTest {
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
-      // TODO Auto-generated method stub
-
+      // nothing to do here
     }
   }
 }

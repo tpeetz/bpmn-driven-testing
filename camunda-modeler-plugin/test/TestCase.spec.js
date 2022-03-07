@@ -11,6 +11,10 @@ describe("TestCase", () => {
     testCase = new TestCase({path: ["a", "b", "c"]});
   });
 
+  it("get ID as MD5 hash of the path's flow node IDs", () => {
+    expect(testCase.id).to.equal("900150983cd24fb0d6963f7d28e17f72");
+  });
+
   it("should update flow node ID when it is in the path", () => {
     testCase.updateFlowNodeId("a", "x");
     testCase.updateFlowNodeId("b", "y");
