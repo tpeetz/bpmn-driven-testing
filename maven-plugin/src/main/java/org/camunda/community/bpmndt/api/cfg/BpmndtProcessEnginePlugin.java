@@ -11,8 +11,8 @@ import org.camunda.bpm.engine.impl.history.HistoryLevel;
 import org.camunda.community.bpmndt.api.TestCaseInstance;
 
 /**
- * Plugin to configure a BPMN Driven Testing conform process engine, used to execute generated test
- * cases.
+ * Plugin to configure a BPMN Driven Testing conform process engine, that is used to execute
+ * generated test cases.
  */
 public class BpmndtProcessEnginePlugin extends AbstractProcessEnginePlugin {
 

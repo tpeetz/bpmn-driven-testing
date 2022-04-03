@@ -103,11 +103,13 @@ public class SendDataTest {
     assertThat(v.length, is(2));
     assertThat(v[0], equalTo("ACTIVITY_START"));
     assertThat(v[1], equalTo("startEvent"));
+    assertThat(v[2], notNullValue());
 
     v = r[3].split("\000");
     assertThat(v.length, is(2));
     assertThat(v[0], equalTo("ACTIVITY_END"));
     assertThat(v[1], equalTo("startEvent"));
+    assertThat(v[2], notNullValue());
 
     v = r[10].split("\000");
     assertThat(v.length, is(2));

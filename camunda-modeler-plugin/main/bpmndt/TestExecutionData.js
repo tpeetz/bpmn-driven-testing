@@ -10,7 +10,6 @@ export default class TestExecutionData {
 
   _decodeData(data) {
     for (const record of data.split(RECORD_SEPARATOR)) {
-      console.log(record);
       this._decodeRecord(record);
     }
   }
@@ -25,10 +24,13 @@ export default class TestExecutionData {
     const recordType = values[0];
     switch (recordType) {
       case "ACTIVITY_END":
-        this.activities[this.activities.length - 1].ended = true;
+        const index = this.activities.findIndex(activity => activity.instanceId === values[2]);
+        if (index !== -1) {
+          this.activities[index].ended = true;
+        }
         break;
       case "ACTIVITY_START":
-        this.activities.push({id: values[1], ended: false});
+        this.activities.push({id: values[1], instanceId: values[2], ended: false});
         break;
       case "PROTOCOL":
         this.version = parseInt(values[1]);

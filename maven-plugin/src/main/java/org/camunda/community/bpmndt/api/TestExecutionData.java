@@ -32,12 +32,12 @@ public class TestExecutionData {
     return records;
   }
 
-  public void recordActivityEnd(String activityId) {
-    records.add(new ActivityRecord(RecordType.ACTIVITY_END, activityId));
+  public void recordActivityEnd(String activityId, String activityInstanceId) {
+    records.add(new ActivityRecord(RecordType.ACTIVITY_END, activityId, activityInstanceId));
   }
 
-  public void recordActivityStart(String activityId) {
-    records.add(new ActivityRecord(RecordType.ACTIVITY_START, activityId));
+  public void recordActivityStart(String activityId, String activityInstanceId) {
+    records.add(new ActivityRecord(RecordType.ACTIVITY_START, activityId, activityInstanceId));
   }
 
   protected void recordTest(String testCaseId, String testName, String testMethodName) {
@@ -121,11 +121,13 @@ public class TestExecutionData {
   public static class ActivityRecord extends Record {
 
     private final String activityId;
+    private final String activityInstanceId;
 
-    private ActivityRecord(RecordType type, String activityId) {
+    private ActivityRecord(RecordType type, String activityId, String activityInstanceId) {
       super(type);
 
       this.activityId = activityId;
+      this.activityInstanceId = activityInstanceId;
     }
 
     @Override
@@ -133,6 +135,8 @@ public class TestExecutionData {
       sb.append(getType().name());
       sb.append(VALUE_SEPARATOR);
       sb.append(activityId);
+      sb.append(VALUE_SEPARATOR);
+      sb.append(activityInstanceId);
     }
 
     public String getActivityId() {

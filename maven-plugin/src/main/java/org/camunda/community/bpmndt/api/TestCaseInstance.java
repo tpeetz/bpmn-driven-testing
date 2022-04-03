@@ -203,7 +203,7 @@ public class TestCaseInstance {
     try {
       socket = new Socket(host, port);
     } catch (UnknownHostException e) {
-      throw new RuntimeException(String.format("Data host '%s' could not be resolved", host), e);
+      throw new RuntimeException(String.format("Listener host '%s' could not be resolved", host), e);
     } catch (IOException e) {
       throw new RuntimeException(String.format("Socket connection to '%s:%d' could not be established", host, port), e);
     }
@@ -215,7 +215,7 @@ public class TestCaseInstance {
     } catch (SocketException e) {
       throw new RuntimeException("Socket connection timeout could not be set", e);
     } catch (IOException e) {
-      throw new RuntimeException("Data could not be written to socket connection", e);
+      throw new RuntimeException("Test execution data could not be written to socket connection", e);
     } finally {
       try {
         socket.close();
@@ -251,6 +251,7 @@ public class TestCaseInstance {
 
   protected void undeploy() {
     callActivityHandlerMap.clear();
+
     data.clear();
 
     if (deploymentId == null) {

@@ -236,7 +236,7 @@
 .bpmndt-marker:not(.djs-connection) .djs-visual > :first-child {fill:#ffffb9 !important}
 .bpmndt-marker-bright:not(.djs-connection) .djs-visual > :first-child {fill:#ffff5b !important}
 .bpmndt-marker-end:not(.djs-connection) .djs-visual > :first-child {fill:#92e8db !important}
-.bpmndt-marker-error:not(.djs-connection) .djs-visual > :first-child {fill:#ff0000 !important}
+.bpmndt-marker-error:not(.djs-connection) .djs-visual > :first-child {fill:#ff3d3d !important}
 .bpmndt-marker-old:not(.djs-connection) .djs-visual > :first-child {fill:#daedff !important}
 .bpmndt-marker-old-bright:not(.djs-connection) .djs-visual > :first-child {fill:#69afff !important}
 .bpmndt-marker-start:not(.djs-connection) .djs-visual > :first-child {fill:#90dd5f !important}

@@ -21,6 +21,10 @@ import org.camunda.community.bpmndt.api.TestExecutionData;
  * 1. Overrides {@link CallActivityBehavior}s to make test cases independent of sub processes.
  * 
  * 2. Enables asynchronous continuation for multi instance activities.
+ * 
+ * 3. Makes a process instance wait at the test case's end activity, if it does not end the process.
+ * 
+ * 4. Adds an execution listener to activities, which collects data during test case execution.
  */
 public class BpmndtParseListener extends AbstractBpmnParseListener {
 
@@ -202,11 +206,11 @@ public class BpmndtParseListener extends AbstractBpmnParseListener {
     @Override
     public void notify(DelegateExecution execution) throws Exception {
       if (execution.getEventName().equals(ExecutionListener.EVENTNAME_START)) {
-        data.recordActivityStart(execution.getCurrentActivityId());
+        data.recordActivityStart(execution.getCurrentActivityId(), execution.getActivityInstanceId());
       }
 
       if (execution.getEventName().equals(ExecutionListener.EVENTNAME_END)) {
-        data.recordActivityEnd(execution.getCurrentActivityId());
+        data.recordActivityEnd(execution.getCurrentActivityId(), execution.getActivityInstanceId());
       }
     }
   }

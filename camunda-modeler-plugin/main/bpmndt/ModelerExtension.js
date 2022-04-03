@@ -2,6 +2,7 @@ import React from "react";
 
 import pluginTabState from "./PluginTabState";
 import TestExecutionData from "./TestExecutionData";
+import TestExecutionDataStore from "./TestExecutionDataStore";
 import ConfigurePluginModal from "./ui/ConfigurePluginModal";
 
 const CHANNEL_CONFIG_CHANGE = "bpmndt-config-change";
@@ -14,11 +15,6 @@ export default class ModelerExtension extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      pluginConfig: null,
-      pluginConfigModalShown: false,
-    }
-
     this.defaultPluginConfig = {
       testExecutionListener: {
         host: "localhost",
@@ -26,6 +22,13 @@ export default class ModelerExtension extends React.Component {
         enabled: false
       }
     };
+
+    this.state = {
+      pluginConfig: null,
+      pluginConfigModalShown: false,
+    };
+
+    this.testExecutionDataStore = new TestExecutionDataStore();
 
     const { subscribe } = props;
 
@@ -43,7 +46,10 @@ export default class ModelerExtension extends React.Component {
     subscribe("bpmn.modeler.created", (event) => {
       const { modeler } = event;
 
-      modeler.get("bpmndt").modelerExtension = this;
+      const plugin = modeler.get("bpmndt");
+
+      plugin.modelerExtension = this;
+      plugin.controller.testExecutionDataStore = this.testExecutionDataStore;
     });
   }
 
@@ -58,6 +64,9 @@ export default class ModelerExtension extends React.Component {
       this.setState({pluginConfig: pluginConfig});
       this._notifyPluginConfigChanged(pluginConfig);
     });
+
+    // remove
+    this._startTestExecutionDataSync();
   }
 
   componentWillUnmount() {
@@ -109,20 +118,24 @@ export default class ModelerExtension extends React.Component {
   _startTestExecutionDataSync() {
     const { ipcRenderer } = this.props.config.backend;
 
+    const now = Date.now();
     this.getTestExecutionData = setInterval(() => {
-      const rawData = ipcRenderer.sendSync(CHANNEL_TEST_EXECUTION_DATA_SYNC);
-      if (rawData.length === 0) {
-        return;
-      }
+      // const rawData = ipcRenderer.sendSync(CHANNEL_TEST_EXECUTION_DATA_SYNC);
+      // if (rawData.length === 0) {
+      //   return;
+      // }
 
-      // TODO
+      const records = [];
+      records.push(`PROTOCOL\u00001\u0000${now}`);
+      records.push("TEST\u00002de2de15f09c2a3d7cfc38fd3341b7af\u0000Test123\u0000test1");
+      records.push("ACTIVITY_START\u0000startEvent\u00001");
+      records.push("ACTIVITY_START\u0000doA\u00002");
+      records.push("ACTIVITY_END\u0000startEvent\u00001");
 
-      const tab = pluginTabState.getActiveTab();
-      if (tab === undefined) {
-        return;
-      }
+      const rawData = [];
+      rawData.push(records.join("\u001E"));
 
-      tab.plugin.controller.setTestExecutionData();
+      this.testExecutionDataStore.addAll(rawData);
     }, 2000);
   }
 

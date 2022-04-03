@@ -54,7 +54,8 @@ export default class PluginController {
     const { mode, testCases } = this;
 
     if (mode !== undefined) {
-      this.pathMarker.mark(mode.state.markers);
+      // recompute initial state of last active mode
+      this.setMode(mode.id, mode.initialCtx);
     } else if (testCases.length !== 0) {
       this.setMode(MODE_VIEW, this);
     } else {
@@ -125,7 +126,7 @@ export default class PluginController {
       // special case
       this.setMode(MODE_VIEW, this);
     } else if (mode.id !== modeId) {
-      // enable mode
+      // toggle mode
       this.setMode(modeId, this);
     } else if (modeId === MODE_SELECT && mode.isMigration()) {
       // special case
@@ -151,16 +152,12 @@ export default class PluginController {
   setMode(modeId, ctx) {
     this.mode = this._getModeById(modeId);
 
+    // remember initial context
+    // so the mode can be recomputed when plugin is enabled/disabled
+    this.mode.initialCtx = ctx;
+
     // triggers update
     this.mode.setState(this.mode.computeInitialState(ctx));
-  }
-
-  setTestExecutionData() {
-    const { testCases } = this;
-
-    for (const testCase of testCases) {
-      console.log(testCase.id);
-    }
   }
 
   update() {
