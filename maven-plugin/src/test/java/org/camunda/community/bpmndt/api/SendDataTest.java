@@ -114,7 +114,7 @@ public class SendDataTest {
     v = r[10].split("\000");
     assertThat(v.length, is(2));
     assertThat(v[0], equalTo("TEST_RESULT"));
-    assertThat(v[1], equalTo("true"));
+    assertThat(v[1], equalTo(TestExecutionData.TestResultStatus.SUCCESS.name()));
   }
 
   private class TestCase extends AbstractJUnit4TestCase {

@@ -56,7 +56,7 @@ public class TestExecutionData {
     }
 
     TestResultRecord testResultRecord = new TestResultRecord();
-    testResultRecord.success = false;
+    testResultRecord.status = TestResultStatus.FAILURE;
 
     records.add(testResultRecord);
   }
@@ -67,7 +67,7 @@ public class TestExecutionData {
     }
 
     TestResultRecord testResultRecord = new TestResultRecord();
-    testResultRecord.success = true;
+    testResultRecord.status = TestResultStatus.SUCCESS;
 
     records.add(testResultRecord);
   }
@@ -188,7 +188,7 @@ public class TestExecutionData {
 
   public static class TestResultRecord extends Record {
 
-    private boolean success;
+    private TestResultStatus status;
 
     private TestResultRecord() {
       super(RecordType.TEST_RESULT);
@@ -198,11 +198,18 @@ public class TestExecutionData {
     protected void encode(StringBuilder sb) {
       sb.append(getType().name());
       sb.append(VALUE_SEPARATOR);
-      sb.append(success);
+      sb.append(status.name());
     }
 
-    public boolean isSuccess() {
-      return success;
+    public TestResultStatus getStatus() {
+      return status;
     }
+  }
+  
+  public static enum TestResultStatus {
+    
+    ERROR,
+    FAILURE,
+    SUCCESS
   }
 }

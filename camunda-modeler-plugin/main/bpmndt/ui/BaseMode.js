@@ -22,6 +22,9 @@ export default class BaseMode {
       controller.markAsChanged();
       delete state.markAsChanged;
     }
+    if ("overlays" in newState) {
+      controller.addOverlays(newState.overlays);
+    }
 
     controller.update();
   }

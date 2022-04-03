@@ -8,13 +8,15 @@ import pluginTabState from "./PluginTabState";
 import PluginView from "./PluginView";
 
 export default class Plugin {
-  constructor(canvas, elementRegistry, eventBus, modeling, moddle) {
+  constructor(canvas, elementRegistry, eventBus, modeling, moddle, overlays) {
     const controller = new PluginController({
       canvas,
       elementRegistry,
       eventBus,
       modeling,
       moddle,
+      overlays,
+
       hidePlugin: this.hide
     });
 
@@ -116,4 +118,4 @@ export default class Plugin {
   }
 }
 
-Plugin.$inject = [ "canvas", "elementRegistry", "eventBus", "modeling", "moddle" ];
+Plugin.$inject = [ "canvas", "elementRegistry", "eventBus", "modeling", "moddle", "overlays" ];

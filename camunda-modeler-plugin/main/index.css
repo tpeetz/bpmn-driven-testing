@@ -287,3 +287,22 @@
   outline: 0;
   box-shadow: 0 0 0 0.2rem rgb(0 123 255 / 25%);
 }
+
+.bpmndt-test-execution-overlay {
+  width: 470px;
+  padding: 0.2rem;
+  border: 1px dashed #000;
+  background-color: #fff;
+}
+.bpmndt-test-execution-overlay td {
+  padding: 0.2rem;
+}
+.bpmndt-test-execution-overlay .error {
+  color: #dc3545;
+}
+.bpmndt-test-execution-overlay .failure {
+  color: #04306e;
+}
+.bpmndt-test-execution-overlay .success {
+  color: #28a745;
+}

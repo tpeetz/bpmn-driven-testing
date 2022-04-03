@@ -28,11 +28,9 @@ export default class ShowTestExecutionMode extends BaseMode {
     // get related data store item
     const item = testExecutionDataStore.getByTestCaseId(testCase.id);
 
-    let testExecutionIndex;
-    if (item.values.length !== 0) {
+    let testExecutionIndex = this.state.testExecutionIndex || -1;
+    if (item.values.length !== 0 && testExecutionIndex === -1) {
       testExecutionIndex = 0;
-    } else {
-      testExecutionIndex = -1;
     }
 
     let markers;
@@ -42,7 +40,14 @@ export default class ShowTestExecutionMode extends BaseMode {
       markers = [];
     }
 
-    return {item: item, markers: markers, testCase: testCase, testExecutionIndex: testExecutionIndex};
+    let overlays;
+    if (testExecutionIndex !== -1) {
+      overlays = this._getOverlays(testCase, item.values[testExecutionIndex]);
+    } else {
+      overlays = [];
+    }
+
+    return { item, markers, overlays, testCase, testExecutionIndex };
   }
 
   computeViewModel() {
@@ -70,7 +75,7 @@ export default class ShowTestExecutionMode extends BaseMode {
   }
 
   _getMarkers(testCase, data) {
-    const { end, start } = testCase;
+    const { end } = testCase;
 
     const markers = [];
 
@@ -78,7 +83,7 @@ export default class ShowTestExecutionMode extends BaseMode {
       if (!activity.ended) {
         markers.push({id: activity.id, style: MARKER_ERROR});
       } else {
-        markers.push({id: start, style: MARKER_START});
+        markers.push({id: activity.id, style: MARKER_START});
       }
     }
 
@@ -88,6 +93,46 @@ export default class ShowTestExecutionMode extends BaseMode {
     }
 
     return markers;
+  }
+
+  _getOverlays(testCase, data) {
+    const overlays = [];
+
+    overlays.push({
+      html: `
+        <div class="bpmndt-test-execution-overlay">
+          <table>
+            <tr>
+              <td><b>Test Case</b></td>
+              <td>${testCase.name || `Length: ${testCase.path.length} flow nodes`}</td>
+            </tr>
+            <tr>
+              <td><b>Test Class</b></td>
+              <td>${data.testName}</td>
+            </tr>
+            <tr>
+              <td><b>Test Method</b></td>
+              <td>${data.testMethodName}</td>
+            </tr>
+            <tr>
+              <td><b>Test Result</b></td>
+              <td class="${data.testResultStatus.toLowerCase()}"><b>${data.testResultStatus}</b></td>
+            </tr>
+            <tr>
+              <td><b>Test Executed At</b></td>
+              <td>${new Date(data.sessionTimestamp).toTimeString()}</td>
+            </tr>
+          </table>
+        </div>
+      `,
+      position: {
+        top: -100,
+        left: 150
+      },
+      type: "test-execution"
+    });
+
+    return overlays;
   }
 
   _handleClickNext = () => {
@@ -108,6 +153,12 @@ export default class ShowTestExecutionMode extends BaseMode {
       newIndex = item.values.length - 1;
     }
 
-    this.setState({markers: this._getMarkers(testCase, item.values[newIndex]), testExecutionIndex: newIndex});
+    const data = item.values[newIndex];
+
+    this.setState({
+      markers: this._getMarkers(testCase, data),
+      overlays: this._getOverlays(testCase, data),
+      testExecutionIndex: newIndex
+    });
   }
 }

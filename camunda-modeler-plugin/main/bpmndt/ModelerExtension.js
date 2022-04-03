@@ -119,23 +119,38 @@ export default class ModelerExtension extends React.Component {
     const { ipcRenderer } = this.props.config.backend;
 
     const now = Date.now();
+    let i = 0;
     this.getTestExecutionData = setInterval(() => {
-      // const rawData = ipcRenderer.sendSync(CHANNEL_TEST_EXECUTION_DATA_SYNC);
-      // if (rawData.length === 0) {
+      const rawData = ipcRenderer.sendSync(CHANNEL_TEST_EXECUTION_DATA_SYNC);
+      if (rawData.length === 0) {
+        return;
+      }
+
+      // if (i === 3) {
       //   return;
       // }
 
-      const records = [];
-      records.push(`PROTOCOL\u00001\u0000${now}`);
-      records.push("TEST\u00002de2de15f09c2a3d7cfc38fd3341b7af\u0000Test123\u0000test1");
-      records.push("ACTIVITY_START\u0000startEvent\u00001");
-      records.push("ACTIVITY_START\u0000doA\u00002");
-      records.push("ACTIVITY_END\u0000startEvent\u00001");
+      // const records = [];
+      // records.push(`PROTOCOL\u00001\u0000${now}`);
+      // records.push("TEST\u00002de2de15f09c2a3d7cfc38fd3341b7af\u0000Test123\u0000test1");
+      // records.push("ACTIVITY_START\u0000startEvent\u00001");
+      // records.push("ACTIVITY_START\u0000doA\u00002");
+      // records.push("ACTIVITY_END\u0000startEvent\u00001");
+      // records.push("TEST_RESULT\u0000SUCCESS");
 
-      const rawData = [];
-      rawData.push(records.join("\u001E"));
+      // const rawData = [];
+      // rawData.push(records.join("\u001E"));
 
       this.testExecutionDataStore.addAll(rawData);
+
+      const tab = pluginTabState.getActiveTab();
+      if (tab === undefined) {
+        return;
+      }
+
+      tab.plugin.controller.updateTestExecutionMode();
+
+      i++;
     }, 2000);
   }
 

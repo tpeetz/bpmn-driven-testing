@@ -30,11 +30,14 @@ export default class PluginController {
     this.elementRegistry = options.elementRegistry;
     this.enabled = false;
     this.hidePlugin = options.hidePlugin;
+    this.overlays = options.overlays;
     this.pathFinder = new PathFinder(options);
     this.pathMarker = new PathMarker(options);
     this.pathValidator = new PathValidator(options);
     this.testCases = [];
     this.testCaseModdle = new TestCaseModdle(options);
+
+    this._addedOverlays = [];
 
     // modes
     this._editMode = new EditMode(this);
@@ -45,9 +48,28 @@ export default class PluginController {
     this._viewMode = new ViewMode(this);
   }
 
+  addOverlays(overlays) {
+    this._removeOverlays();
+
+    for (const overlay of overlays) {
+      const { flowNodeId, html, position, type } = overlay;
+
+      let element;
+      if (flowNodeId === undefined) {
+        element = this.testCaseModdle.process;
+      } else {
+        element = this.elementRegistry.get(flowNodeId);
+      }
+
+      overlay.id = this.overlays.add(element, type, { html, position });
+      this._addedOverlays.push(overlay);
+    }
+  }
+
   disable() {
     this.enabled = false;
     this.pathMarker.unmark();
+    this._removeOverlays();
   }
 
   enable() {
@@ -150,6 +172,8 @@ export default class PluginController {
   }
 
   setMode(modeId, ctx) {
+    this._removeOverlays();
+
     this.mode = this._getModeById(modeId);
 
     // remember initial context
@@ -163,6 +187,19 @@ export default class PluginController {
   update() {
     this.state = this._computeState();
     this.updateView();
+  }
+
+  updateTestExecutionMode() {
+    const { enabled, mode } = this;
+
+    if (!enabled) {
+      return;
+    }
+
+    if (mode && mode.id === MODE_SHOW_TEST_EXECUTION) {
+      // recompute initial state of mode
+      this.setMode(mode.id, mode.initialCtx);
+    }
   }
 
   _autoResolveProblem(testCase) {
@@ -228,6 +265,14 @@ export default class PluginController {
       default:
         throw new Error(`Unsupported mode '${modeId}'`);
     }
+  }
+
+  _removeOverlays() {
+    for (const overlay of this._addedOverlays) {
+      this.overlays.remove(overlay.id);
+    }
+
+    this._addedOverlays = [];
   }
 
   _validateTestCases() {

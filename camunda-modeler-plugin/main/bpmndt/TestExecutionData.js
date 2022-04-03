@@ -42,7 +42,7 @@ export default class TestExecutionData {
         this.testMethodName = values[3];
         break;
       case "TEST_RESULT":
-        this.success = values[1] === "true";
+        this.testResultStatus = values[1];
         break;
       default:
         // ignore unknown record types
