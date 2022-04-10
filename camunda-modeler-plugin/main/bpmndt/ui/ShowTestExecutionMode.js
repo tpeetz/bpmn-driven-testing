@@ -1,3 +1,5 @@
+import React from "react";
+
 import {
   MARKER_END,
   MARKER_ERROR,
@@ -6,6 +8,8 @@ import {
 } from "../constants";
 
 import BaseMode from "./BaseMode";
+
+import TestExecution from "./overlay/TestExecution";
 
 export default class ShowTestExecutionMode extends BaseMode {
   constructor(controller) {
@@ -58,14 +62,14 @@ export default class ShowTestExecutionMode extends BaseMode {
       return;
     }
 
-    const data = item.values[testExecutionIndex];
+    const testExecutionData = item.values[testExecutionIndex];
 
     return {
       next: item.values.length > 1 ? this.next : undefined,
       prev: item.values.length > 1 ? this.prev : undefined,
       content: {
         centerTop: `Test execution ${testExecutionIndex + 1} / ${item.values.length}`,
-        centerBottom: `${data.testName}#${data.testMethodName}`,
+        centerBottom: `${testExecutionData.testNameShortend}#${testExecutionData.testMethodName}`,
         leftTop: testCase.start,
         leftBottom: testCase.startType,
         rightTop: testCase.end,
@@ -74,12 +78,12 @@ export default class ShowTestExecutionMode extends BaseMode {
     }
   }
 
-  _getMarkers(testCase, data) {
+  _getMarkers(testCase, testExecutionData) {
     const { end } = testCase;
 
     const markers = [];
 
-    for (const activity of data.activities) {
+    for (const activity of testExecutionData.activities) {
       if (!activity.ended) {
         markers.push({id: activity.id, style: MARKER_ERROR});
       } else {
@@ -87,7 +91,7 @@ export default class ShowTestExecutionMode extends BaseMode {
       }
     }
 
-    const endIndex = data.activities.findIndex(activity => activity.id === end);
+    const endIndex = testExecutionData.activities.findIndex(activity => activity.id === end);
     if (endIndex === -1) {
       markers.push({id: end, style: MARKER_END});
     }
@@ -95,36 +99,12 @@ export default class ShowTestExecutionMode extends BaseMode {
     return markers;
   }
 
-  _getOverlays(testCase, data) {
+  _getOverlays(testCase, testExecutionData) {
     const overlays = [];
 
     overlays.push({
-      html: `
-        <div class="bpmndt-test-execution-overlay">
-          <table>
-            <tr>
-              <td><b>Test Case</b></td>
-              <td>${testCase.name || `Length: ${testCase.path.length} flow nodes`}</td>
-            </tr>
-            <tr>
-              <td><b>Test Class</b></td>
-              <td>${data.testName}</td>
-            </tr>
-            <tr>
-              <td><b>Test Method</b></td>
-              <td>${data.testMethodName}</td>
-            </tr>
-            <tr>
-              <td><b>Test Result</b></td>
-              <td class="${data.testResultStatus.toLowerCase()}"><b>${data.testResultStatus}</b></td>
-            </tr>
-            <tr>
-              <td><b>Test Executed At</b></td>
-              <td>${new Date(data.sessionTimestamp).toTimeString()}</td>
-            </tr>
-          </table>
-        </div>
-      `,
+      data: { testCase, testExecutionData },
+      component: <TestExecution testCase={testCase} testExecutionData={testExecutionData} />,
       position: {
         top: -100,
         left: 150
@@ -153,11 +133,11 @@ export default class ShowTestExecutionMode extends BaseMode {
       newIndex = item.values.length - 1;
     }
 
-    const data = item.values[newIndex];
+    const testExecutionData = item.values[newIndex];
 
     this.setState({
-      markers: this._getMarkers(testCase, data),
-      overlays: this._getOverlays(testCase, data),
+      markers: this._getMarkers(testCase, testExecutionData),
+      overlays: this._getOverlays(testCase, testExecutionData),
       testExecutionIndex: newIndex
     });
   }

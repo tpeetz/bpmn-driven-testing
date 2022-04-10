@@ -121,25 +121,26 @@ export default class ModelerExtension extends React.Component {
     const now = Date.now();
     let i = 0;
     this.getTestExecutionData = setInterval(() => {
-      const rawData = ipcRenderer.sendSync(CHANNEL_TEST_EXECUTION_DATA_SYNC);
-      if (rawData.length === 0) {
-        return;
-      }
-
-      // if (i === 3) {
+      // const rawData = ipcRenderer.sendSync(CHANNEL_TEST_EXECUTION_DATA_SYNC);
+      // if (rawData.length === 0) {
       //   return;
       // }
 
-      // const records = [];
-      // records.push(`PROTOCOL\u00001\u0000${now}`);
-      // records.push("TEST\u00002de2de15f09c2a3d7cfc38fd3341b7af\u0000Test123\u0000test1");
-      // records.push("ACTIVITY_START\u0000startEvent\u00001");
-      // records.push("ACTIVITY_START\u0000doA\u00002");
-      // records.push("ACTIVITY_END\u0000startEvent\u00001");
-      // records.push("TEST_RESULT\u0000SUCCESS");
+      if (i === 3) {
+        return;
+      }
 
-      // const rawData = [];
-      // rawData.push(records.join("\u001E"));
+      const records = [];
+      records.push(`PROTOCOL\u00001\u0000${now}`);
+      records.push("TEST\u00002de2de15f09c2a3d7cfc38fd3341b7af\u0000org.camunda.community.bpmndt.api.MultiInstanceSequentialTest\u0000testHappyPath");
+      records.push("BUSINESS_KEY\u0000bk123");
+      records.push("ACTIVITY_START\u0000startEvent\u00001");
+      records.push("ACTIVITY_START\u0000doA\u00002");
+      records.push("ACTIVITY_END\u0000startEvent\u00001");
+      records.push("TEST_RESULT\u0000ERROR");
+
+      const rawData = [];
+      rawData.push(records.join("\u001E"));
 
       this.testExecutionDataStore.addAll(rawData);
 

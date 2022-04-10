@@ -1,3 +1,5 @@
+import ReactDOM from "react-dom";
+
 import {
   MODE_EDIT,
   MODE_MIGRATE,
@@ -52,7 +54,7 @@ export default class PluginController {
     this._removeOverlays();
 
     for (const overlay of overlays) {
-      const { flowNodeId, html, position, type } = overlay;
+      const { component, flowNodeId, position, type } = overlay;
 
       let element;
       if (flowNodeId === undefined) {
@@ -61,7 +63,16 @@ export default class PluginController {
         element = this.elementRegistry.get(flowNodeId);
       }
 
-      overlay.id = this.overlays.add(element, type, { html, position });
+      // add empty overlay, which will be used as container for React
+      // type defines CSS class e.g. xyz -> bpmndt-xzy -> .djs-overlay-bpmndt-xyz
+      overlay.id = this.overlays.add(element, `bpmndt-${type}`, { html: "<div></div>", position });
+
+      // get DOM element that created by overlays#add
+      const { htmlContainer } = this.overlays.get(overlay.id);
+
+      // render overlay component
+      ReactDOM.render(component, htmlContainer);
+
       this._addedOverlays.push(overlay);
     }
   }
@@ -269,6 +280,10 @@ export default class PluginController {
 
   _removeOverlays() {
     for (const overlay of this._addedOverlays) {
+      const { htmlContainer } = this.overlays.get(overlay.id);
+
+      ReactDOM.unmountComponentAtNode(htmlContainer);
+
       this.overlays.remove(overlay.id);
     }
 

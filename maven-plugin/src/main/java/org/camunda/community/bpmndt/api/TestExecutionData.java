@@ -40,6 +40,12 @@ public class TestExecutionData {
     records.add(new ActivityRecord(RecordType.ACTIVITY_START, activityId, activityInstanceId));
   }
 
+  protected void recordBusinessKey(String businessKey) {
+    if (businessKey != null) {
+      records.add(new BusinessKeyRecord(businessKey));
+    }
+  }
+
   protected void recordTest(String testCaseId, String testName, String testMethodName) {
     TestRecord testRecord = new TestRecord();
     testRecord.testCaseId = testCaseId;
@@ -51,10 +57,6 @@ public class TestExecutionData {
   }
 
   protected void recordTestFailure(Throwable t) {
-    if (records.isEmpty()) {
-      throw new IllegalStateException("Test must be recorded first");
-    }
-
     TestResultRecord testResultRecord = new TestResultRecord();
     testResultRecord.status = TestResultStatus.FAILURE;
 
@@ -62,10 +64,6 @@ public class TestExecutionData {
   }
 
   protected void recordTestSuccess() {
-    if (records.isEmpty()) {
-      throw new IllegalStateException("Test must be recorded first");
-    }
-
     TestResultRecord testResultRecord = new TestResultRecord();
     testResultRecord.status = TestResultStatus.SUCCESS;
 
@@ -79,6 +77,8 @@ public class TestExecutionData {
       record.encode(sb);
 
       sb.append(RECORD_SEPARATOR);
+      sb.append(record.getType().name());
+      sb.append(VALUE_SEPARATOR);
 
       w.write(sb.toString());
 
@@ -90,6 +90,7 @@ public class TestExecutionData {
 
     ACTIVITY_END,
     ACTIVITY_START,
+    BUSINESS_KEY,
     PROTOCOL,
     TEST,
     TEST_RESULT
@@ -118,6 +119,26 @@ public class TestExecutionData {
     }
   }
 
+  public static class BusinessKeyRecord extends Record {
+
+    private final String businessKey;
+
+    private BusinessKeyRecord(String businessKey) {
+      super(RecordType.BUSINESS_KEY);
+
+      this.businessKey = businessKey;
+    }
+
+    @Override
+    protected void encode(StringBuilder sb) {
+      sb.append(businessKey);
+    }
+
+    public String getBusinessKey() {
+      return businessKey;
+    }
+  }
+
   public static class ActivityRecord extends Record {
 
     private final String activityId;
@@ -132,8 +153,6 @@ public class TestExecutionData {
 
     @Override
     protected void encode(StringBuilder sb) {
-      sb.append(getType().name());
-      sb.append(VALUE_SEPARATOR);
       sb.append(activityId);
       sb.append(VALUE_SEPARATOR);
       sb.append(activityInstanceId);
@@ -152,8 +171,6 @@ public class TestExecutionData {
 
     @Override
     protected void encode(StringBuilder sb) {
-      sb.append(getType());
-      sb.append(VALUE_SEPARATOR);
       sb.append(VERSION);
       sb.append(VALUE_SEPARATOR);
       sb.append(ManagementFactory.getRuntimeMXBean().getStartTime());
@@ -172,8 +189,6 @@ public class TestExecutionData {
 
     @Override
     protected void encode(StringBuilder sb) {
-      sb.append(getType().name());
-      sb.append(VALUE_SEPARATOR);
       sb.append(testCaseId);
       sb.append(VALUE_SEPARATOR);
       sb.append(testName);
@@ -196,8 +211,6 @@ public class TestExecutionData {
     
     @Override
     protected void encode(StringBuilder sb) {
-      sb.append(getType().name());
-      sb.append(VALUE_SEPARATOR);
       sb.append(status.name());
     }
 

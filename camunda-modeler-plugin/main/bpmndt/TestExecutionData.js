@@ -32,6 +32,9 @@ export default class TestExecutionData {
       case "ACTIVITY_START":
         this.activities.push({id: values[1], instanceId: values[2], ended: false});
         break;
+      case "BUSINESS_KEY":
+        this.businessKey = values[1];
+        break;
       case "PROTOCOL":
         this.version = parseInt(values[1]);
         this.sessionTimestamp = parseInt(values[2]);
@@ -39,6 +42,7 @@ export default class TestExecutionData {
       case "TEST":
         this.testCaseId = values[1];
         this.testName = values[2];
+        this.testNameShortend = this._shortenTestName(values[2]);
         this.testMethodName = values[3];
         break;
       case "TEST_RESULT":
@@ -47,5 +51,19 @@ export default class TestExecutionData {
       default:
         // ignore unknown record types
     }
+  }
+
+  _shortenTestName(testName) {
+    const split = testName.split(".");
+
+    for (let i = 0; i < split.length - 1; i++) {
+      const l = split.reduce((sum, s) => sum + s.length, split.length - 1);
+      if (l <= 50) {
+        break;
+      }
+      split[i] = split[i].charAt(0);
+    }
+
+    return split.join(".");
   }
 }

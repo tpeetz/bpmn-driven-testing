@@ -76,6 +76,9 @@ public class TestCaseExecutor {
       executor.accept(pi);
     } catch (ProcessEngineException e) {
       throw unwrapAssertionError(e);
+    } finally {
+      // record latest business key
+      instance.getData().recordBusinessKey(pi.getBusinessKey());
     }
 
     if (verifier != null) {
