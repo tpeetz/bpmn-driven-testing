@@ -52,6 +52,16 @@ public class TestCaseContext {
     activities.add(next);
   }
 
+  /**
+   * Adds the ID of a flow node to the invalid node IDs, because it does not exists within the BPMN
+   * model instance. If at least one flow node ID is added, the test case is considered to be invalid,
+   * since its path is invalid.
+   * 
+   * @param flowNodeId A flow node ID of the test case.
+   * 
+   * @see #getInvalidFlowNodeIds()
+   * @see #isPathInvalid()
+   */
   public void addInvalidFlowNodeId(String flowNodeId) {
     invalidFlowNodeIds.add(flowNodeId);
   }

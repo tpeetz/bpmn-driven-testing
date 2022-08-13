@@ -15,6 +15,7 @@ import org.camunda.community.bpmndt.api.cfg.BpmndtParseListener;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.MethodSpec.Builder;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
@@ -56,7 +57,7 @@ public class DefaultStrategy implements GeneratorStrategy {
   @Override
   public void addHandlerMethodAfter(TypeSpec.Builder classBuilder) {
     MethodSpec method = MethodSpec.methodBuilder(buildHandlerMethodName(getLiteralAfter()))
-        .addJavadoc(buildHandlerMethodJavadocAfter())
+        .addJavadoc("Returns the async after handler for $L: $L", activity.getTypeName(), activity.getId())
         .addModifiers(Modifier.PUBLIC)
         .returns(JobHandler.class)
         .addStatement("return $L", getLiteralAfter())
@@ -68,7 +69,7 @@ public class DefaultStrategy implements GeneratorStrategy {
   @Override
   public void addHandlerMethodBefore(TypeSpec.Builder classBuilder) {
     MethodSpec method = MethodSpec.methodBuilder(buildHandlerMethodName(getLiteralBefore()))
-        .addJavadoc(buildHandlerMethodJavadocBefore())
+        .addJavadoc("Returns the async before handler for $L: $L", activity.getTypeName(), activity.getId())
         .addModifiers(Modifier.PUBLIC)
         .returns(JobHandler.class)
         .addStatement("return $L", getLiteralBefore())
@@ -94,14 +95,6 @@ public class DefaultStrategy implements GeneratorStrategy {
     methodBuilder.addStatement("instance.apply($L)", getLiteralBefore());
   }
 
-  protected String buildHandlerMethodJavadocAfter() {
-    return String.format("Returns the async after handler for %s: %s", activity.getTypeName(), activity.getId());
-  }
-
-  protected String buildHandlerMethodJavadocBefore() {
-    return String.format("Returns the async before handler for %s: %s", activity.getTypeName(), activity.getId());
-  }
-
   protected String buildHandlerMethodName(String literal) {
     return String.format("handle%s", StringUtils.capitalize(literal));
   }
@@ -117,6 +110,11 @@ public class DefaultStrategy implements GeneratorStrategy {
 
   protected String getLiteralBefore() {
     return String.format("%sBefore", activity.getLiteral());
+  }
+
+  @Override
+  public void hasPassed(Builder methodBuilder) {
+    methodBuilder.addStatement("assertThat(pi).hasPassed($S)", activity.getId());
   }
 
   @Override
@@ -139,6 +137,11 @@ public class DefaultStrategy implements GeneratorStrategy {
   @Override
   public CodeBlock initHandlerStatement() {
     return null;
+  }
+
+  @Override
+  public void isWaitingAt(Builder methodBuilder) {
+    methodBuilder.addStatement("assertThat(pi).isWaitingAt($S)", activity.getId());
   }
 
   public void setActivity(TestCaseActivity activity) {

@@ -30,14 +30,13 @@ import com.squareup.javapoet.TypeSpec;
 public class GenerateMultiInstanceHandler implements Consumer<TestCaseActivity> {
 
   private final GeneratorContext gCtx;
+  private final TestCaseContext ctx;
   private final GeneratorResult result;
 
-  private final TestCaseContext ctx;
-
-  public GenerateMultiInstanceHandler(GeneratorContext gCtx, GeneratorResult result, TestCaseContext ctx) {
+  public GenerateMultiInstanceHandler(GeneratorContext gCtx, TestCaseContext ctx, GeneratorResult result) {
     this.gCtx = gCtx;
-    this.result = result;
     this.ctx = ctx;
+    this.result = result;
   }
 
   @Override

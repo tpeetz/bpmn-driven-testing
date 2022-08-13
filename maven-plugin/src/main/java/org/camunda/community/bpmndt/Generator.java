@@ -18,6 +18,7 @@ import org.camunda.community.bpmndt.api.EventHandler;
 import org.camunda.community.bpmndt.api.ExternalTaskHandler;
 import org.camunda.community.bpmndt.api.JobHandler;
 import org.camunda.community.bpmndt.api.MultiInstanceHandler;
+import org.camunda.community.bpmndt.api.MultiInstanceScopeHandler;
 import org.camunda.community.bpmndt.api.TestCaseExecutor;
 import org.camunda.community.bpmndt.api.TestCaseInstance;
 import org.camunda.community.bpmndt.api.UserTaskHandler;
@@ -27,9 +28,10 @@ import org.camunda.community.bpmndt.api.cfg.SpringConfiguration;
 import org.camunda.community.bpmndt.cmd.BuildTestCaseContext;
 import org.camunda.community.bpmndt.cmd.CollectBpmnFiles;
 import org.camunda.community.bpmndt.cmd.DeleteTestSources;
-import org.camunda.community.bpmndt.cmd.GenerateTestCase;
 import org.camunda.community.bpmndt.cmd.GenerateMultiInstanceHandler;
+import org.camunda.community.bpmndt.cmd.GenerateMultiInstanceScopeHandler;
 import org.camunda.community.bpmndt.cmd.GenerateSpringConfiguration;
+import org.camunda.community.bpmndt.cmd.GenerateTestCase;
 import org.camunda.community.bpmndt.cmd.WriteJavaFile;
 import org.camunda.community.bpmndt.cmd.WriteJavaType;
 import org.camunda.community.bpmndt.model.TestCase;
@@ -79,18 +81,18 @@ public class Generator {
 
     log.info("");
 
-    WriteJavaFile write = new WriteJavaFile(log, ctx);
+    WriteJavaFile writeJavaFile = new WriteJavaFile(log, ctx);
 
     // write test cases
     log.info("Writing test cases");
-    result.getFiles().forEach(write);
+    result.getFiles().forEach(writeJavaFile);
 
     if (!result.getAdditionalFiles().isEmpty()) {
       log.info("");
 
       // write additional classes
       log.info("Writing additional classes");
-      result.getAdditionalFiles().forEach(write);
+      result.getAdditionalFiles().forEach(writeJavaFile);
     }
 
     log.info("");
@@ -104,6 +106,7 @@ public class Generator {
     apiClasses.add(EventHandler.class);
     apiClasses.add(JobHandler.class);
     apiClasses.add(MultiInstanceHandler.class);
+    apiClasses.add(MultiInstanceScopeHandler.class);
     apiClasses.add(TestCaseInstance.class);
     apiClasses.add(TestCaseExecutor.class);
     apiClasses.add(UserTaskHandler.class);
@@ -121,11 +124,11 @@ public class Generator {
       apiClasses.add(SpringConfiguration.class);
     }
 
-    WriteJavaType writeType = new WriteJavaType(log, ctx);
+    WriteJavaType writeJavaType = new WriteJavaType(log, ctx);
 
     // write API classes
     log.info("Writing API classes");
-    apiClasses.forEach(writeType);
+    apiClasses.forEach(writeJavaType);
   }
 
   protected void generateSpringConfiguration(GeneratorContext ctx) {
@@ -134,9 +137,15 @@ public class Generator {
   }
 
   protected void generateMultiInstanceHandlers(GeneratorContext gCtx, TestCaseContext ctx) {
-    Consumer<TestCaseActivity> generate = new GenerateMultiInstanceHandler(gCtx, result, ctx);
+    Consumer<TestCaseActivity> generate = new GenerateMultiInstanceHandler(gCtx, ctx, result);
 
-    ctx.getActivities().stream().filter(TestCaseActivity::isMultiInstance).forEach(generate::accept);
+    ctx.getActivities().stream().filter(activity -> activity.isMultiInstance() && !activity.isScope()).forEach(generate);
+  }
+
+  protected void generateMultiInstanceScopeHandlers(GeneratorContext gCtx, TestCaseContext ctx) {
+    Consumer<TestCaseActivity> generate = new GenerateMultiInstanceScopeHandler(gCtx, ctx, result);
+
+    ctx.getActivities().stream().filter(activity -> activity.isMultiInstance() && activity.isScope()).forEach(generate);
   }
 
   protected void generateTestCases(GeneratorContext gCtx, Path bpmnFile) {
@@ -167,6 +176,7 @@ public class Generator {
       log.info(String.format("Generating test case '%s'", testCaseName));
       generate.accept(ctx);
       generateMultiInstanceHandlers(gCtx, ctx);
+      generateMultiInstanceScopeHandlers(gCtx, ctx);
     }
   }
 

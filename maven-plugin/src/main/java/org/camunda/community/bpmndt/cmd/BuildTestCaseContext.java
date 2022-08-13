@@ -11,12 +11,14 @@ import org.camunda.bpm.model.bpmn.instance.Error;
 import org.camunda.bpm.model.bpmn.instance.Escalation;
 import org.camunda.bpm.model.bpmn.instance.IntermediateCatchEvent;
 import org.camunda.bpm.model.bpmn.instance.Message;
+import org.camunda.bpm.model.bpmn.instance.MultiInstanceLoopCharacteristics;
 import org.camunda.bpm.model.bpmn.instance.ReceiveTask;
 import org.camunda.bpm.model.bpmn.instance.Signal;
 import org.camunda.community.bpmndt.BpmnEventSupport;
 import org.camunda.community.bpmndt.BpmnSupport;
 import org.camunda.community.bpmndt.GeneratorContext;
 import org.camunda.community.bpmndt.TestCaseActivity;
+import org.camunda.community.bpmndt.TestCaseActivityScope;
 import org.camunda.community.bpmndt.TestCaseActivityType;
 import org.camunda.community.bpmndt.TestCaseContext;
 import org.camunda.community.bpmndt.model.TestCase;
@@ -27,6 +29,7 @@ import org.camunda.community.bpmndt.strategy.DefaultStrategy;
 import org.camunda.community.bpmndt.strategy.EventStrategy;
 import org.camunda.community.bpmndt.strategy.ExternalTaskStrategy;
 import org.camunda.community.bpmndt.strategy.JobStrategy;
+import org.camunda.community.bpmndt.strategy.MultiInstanceScopeStrategy;
 import org.camunda.community.bpmndt.strategy.MultiInstanceStrategy;
 import org.camunda.community.bpmndt.strategy.UserTaskStrategy;
 
@@ -62,6 +65,7 @@ public class BuildTestCaseContext implements Function<TestCase, TestCaseContext>
 
     List<String> flowNodeIds = testCase.getPath().getFlowNodeIds();
 
+    TestCaseActivityScope scope = null;
     for (int i = 0; i < flowNodeIds.size(); i++) {
       String flowNodeId = flowNodeIds.get(i);
 
@@ -86,7 +90,7 @@ public class BuildTestCaseContext implements Function<TestCase, TestCaseContext>
       } else if (bpmnSupport.isBoundaryEvent(flowNodeId)) {
         handleBoundaryEvent(activity, flowNodeId);
       } else if (bpmnSupport.isReceiveTask(flowNodeId)) {
-        // handled like a message catch event
+        // handle receive task as message catch event
         Message message = activity.as(ReceiveTask.class).getMessage();
 
         activity.setType(TestCaseActivityType.MESSAGE_CATCH);
@@ -106,10 +110,51 @@ public class BuildTestCaseContext implements Function<TestCase, TestCaseContext>
         activity.setProcessEnd(bpmnSupport.isProcessEnd(flowNodeId));
       }
 
-      ctx.addActivity(activity);
+      String parentElementId = bpmnSupport.getParentElementId(flowNodeId);
+      if (ctx.getProcessId().equals(parentElementId) || parentElementId == null) {
+        scope = null;
+
+        ctx.addActivity(activity);
+        continue;
+      }
+
+      // if there is no scope yet or the scope has changed,
+      // create a new scope and add itself as an activity
+      // if the scope is not a multi instance, it will still be null
+      if (scope == null || !scope.getId().equals(parentElementId)) {
+        scope = createMultiInstanceScope(ctx, parentElementId);
+      }
+
+      if (scope != null) {
+        scope.addActivity(activity);
+      } else {
+        ctx.addActivity(activity);
+      }
     }
 
     return ctx;
+  }
+
+  /**
+   * Creates a multi instance scope for the given ID.
+   * 
+   * @param ctx The test case context.
+   * 
+   * @param scopeId The ID of a specific scope (subprocess or transaction).
+   * 
+   * @return The newly create multi instance scope or {@code null}, if the scope is not a multi
+   *         instance.
+   */
+  protected TestCaseActivityScope createMultiInstanceScope(TestCaseContext ctx, String scopeId) {
+    MultiInstanceLoopCharacteristics multiInstance = bpmnSupport.getMultiInstance(scopeId);
+    if (multiInstance == null) {
+      return null;
+    } else {
+      TestCaseActivityScope scope = new TestCaseActivityScope(bpmnSupport.get(scopeId), multiInstance);
+
+      handleMultiInstanceScope(ctx, scope);
+      return scope;
+    }
   }
 
   protected DefaultStrategy getStrategy(TestCaseActivity current) {
@@ -204,5 +249,16 @@ public class BuildTestCaseContext implements Function<TestCase, TestCaseContext>
     MultiInstanceStrategy multiInstanceStrategy = new MultiInstanceStrategy(activity.getStrategy(), ClassName.get(packageName, name));
     multiInstanceStrategy.setActivity(activity);
     activity.setStrategy(multiInstanceStrategy);
+  }
+
+  protected void handleMultiInstanceScope(TestCaseContext ctx, TestCaseActivityScope scope) {
+    String packageName = String.format("%s.%s", gCtx.getPackageName(), ctx.getPackageName());
+    String name = String.format("%sHandler", StringUtils.capitalize(scope.getLiteral()));
+
+    MultiInstanceScopeStrategy multiInstanceScopeStrategy = new MultiInstanceScopeStrategy(ClassName.get(packageName, name));
+    multiInstanceScopeStrategy.setActivity(scope);
+    scope.setStrategy(multiInstanceScopeStrategy);
+
+    ctx.addActivity(scope);
   }
 }

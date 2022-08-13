@@ -4,7 +4,6 @@ import java.util.function.Function;
 
 import javax.lang.model.element.Modifier;
 
-import org.camunda.bpm.engine.ActivityTypes;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.community.bpmndt.GeneratorStrategy;
 import org.camunda.community.bpmndt.TestCaseActivity;
@@ -52,28 +51,23 @@ public class Execute implements Function<TestCaseContext, MethodSpec> {
         strategy.applyHandlerAfter(builder);
       }
 
-      if (activity.hasPrev() && activity.getPrev().getType() == TestCaseActivityType.EVENT_BASED_GATEWAY) {
-        // ensure that event based gateway has been passed
-        builder.addStatement("assertThat(pi).hasPassed($S)", activity.getPrev().getId());
+      if (activity.hasPrev(TestCaseActivityType.EVENT_BASED_GATEWAY)) {
+        // assert that event based gateway has been passed
+        activity.getPrev().getStrategy().hasPassed(builder);
       }
 
       if (activity.getType() == TestCaseActivityType.EVENT_BASED_GATEWAY) {
-        builder.addStatement("assertThat(pi).isWaitingAt($S)", activity.getId());
+        activity.getStrategy().isWaitingAt(builder);
       } else if (activity.hasNext() || activity.isProcessEnd()) {
-        builder.addStatement("assertThat(pi).hasPassed($S)", getActivityId(activity));
+        activity.getStrategy().hasPassed(builder);
       } else {
-        builder.addStatement("assertThat(pi).isWaitingAt($S)", getActivityId(activity));
+        // assert that process instance is waiting at the test case's last activity
+        // which is not the process end
+        // see BpmndtParseListener#instrumentEndActivity
+        activity.getStrategy().isWaitingAt(builder);
       }
     }
 
     return builder.build();
-  }
-
-  protected String getActivityId(TestCaseActivity activity) {
-    if (activity.isMultiInstance()) {
-      return String.format("%s#%s", activity.getId(), ActivityTypes.MULTI_INSTANCE_BODY);
-    } else {
-      return activity.getId();
-    }
   }
 }

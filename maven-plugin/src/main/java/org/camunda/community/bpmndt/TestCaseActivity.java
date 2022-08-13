@@ -122,6 +122,17 @@ public class TestCaseActivity {
     return prev != null;
   }
 
+  /**
+   * Checks the activity has a predecessor and the predecessor's type is the given type.
+   * 
+   * @param type A specific test activity type.
+   * 
+   * @return {@code true}, if a previous activity with the given type exists. Otherwise {@code false}.
+   */
+  public boolean hasPrev(TestCaseActivityType type) {
+    return hasPrev() && getPrev().getType() == type;
+  }
+
   public boolean isAsyncAfter() {
     return type != TestCaseActivityType.EVENT_BASED_GATEWAY && flowNode.isCamundaAsyncAfter();
   }
@@ -144,6 +155,16 @@ public class TestCaseActivity {
     } else {
       return processEnd;
     }
+  }
+
+  /**
+   * Determines if the activity is a scope (embedded sub processe or transaction) or an atomic
+   * activity.
+   * 
+   * @return {@code true}, if the activity is a scope. Otherwise {@code false}.
+   */
+  public boolean isScope() {
+    return false;
   }
 
   public void setAttachedTo(String attachedTo) {
