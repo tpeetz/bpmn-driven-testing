@@ -9,11 +9,12 @@ public class TestCaseActivity {
   private final String literal;
   private final MultiInstanceLoopCharacteristics multiInstance;
 
+  private TestCaseActivity parent;
   private TestCaseActivityType type;
   private TestCaseActivity prev;
   private TestCaseActivity next;
 
-  private Boolean processEnd;
+  private boolean processEnd;
 
   private GeneratorStrategy strategy;
 
@@ -90,6 +91,15 @@ public class TestCaseActivity {
   }
 
   /**
+   * Return the parent test case activity scope e.g. in case of a multi instance scope.
+   * 
+   * @return The parent or {@code null}.
+   */
+  public TestCaseActivity getParent() {
+    return parent;
+  }
+
+  /**
    * Returns the previous test activity.
    * 
    * @return The previous activity or {@code null}, if this is the first activity.
@@ -116,6 +126,10 @@ public class TestCaseActivity {
 
   public boolean hasNext() {
     return next != null;
+  }
+
+  public boolean hasParent() {
+    return parent != null;
   }
 
   public boolean hasPrev() {
@@ -149,12 +163,8 @@ public class TestCaseActivity {
     return multiInstance != null;
   }
 
-  public Boolean isProcessEnd() {
-    if (hasNext()) {
-      return null;
-    } else {
-      return processEnd;
-    }
+  public boolean isProcessEnd() {
+    return processEnd;
   }
 
   /**
@@ -181,6 +191,10 @@ public class TestCaseActivity {
 
   public void setNext(TestCaseActivity next) {
     this.next = next;
+  }
+
+  public void setParent(TestCaseActivity parent) {
+    this.parent = parent;
   }
 
   public void setPrev(TestCaseActivity prev) {

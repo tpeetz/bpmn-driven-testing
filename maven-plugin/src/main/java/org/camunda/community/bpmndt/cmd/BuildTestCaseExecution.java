@@ -1,37 +1,20 @@
-package org.camunda.community.bpmndt.cmd.generation;
+package org.camunda.community.bpmndt.cmd;
 
-import java.util.function.Function;
+import java.util.List;
+import java.util.function.BiConsumer;
 
-import javax.lang.model.element.Modifier;
-
-import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.community.bpmndt.GeneratorStrategy;
 import org.camunda.community.bpmndt.TestCaseActivity;
 import org.camunda.community.bpmndt.TestCaseActivityType;
-import org.camunda.community.bpmndt.TestCaseContext;
 
 import com.squareup.javapoet.MethodSpec;
 
-/**
- * Function that builds the method, which executes the actual test case.
- */
-public class Execute implements Function<TestCaseContext, MethodSpec> {
+public class BuildTestCaseExecution implements BiConsumer<List<TestCaseActivity>, MethodSpec.Builder> {
 
   @Override
-  public MethodSpec apply(TestCaseContext ctx) {
-    MethodSpec.Builder builder = MethodSpec.methodBuilder("execute")
-        .addAnnotation(Override.class)
-        .addModifiers(Modifier.PROTECTED)
-        .addParameter(ProcessInstance.class, "pi");
-
-    // handle possible test case errors
-    if (!ctx.isValid()) {
-      new HandleTestCaseErrors().accept(ctx, builder);
-      return builder.build();
-    }
-
-    for (int i = 0; i < ctx.getActivities().size(); i++) {
-      TestCaseActivity activity = ctx.getActivities().get(i);
+  public void accept(List<TestCaseActivity> activities, MethodSpec.Builder builder) {
+    for (int i = 0; i < activities.size(); i++) {
+      TestCaseActivity activity = activities.get(i);
 
       if (i != 0) {
         builder.addCode("\n");
@@ -58,7 +41,7 @@ public class Execute implements Function<TestCaseContext, MethodSpec> {
 
       if (activity.getType() == TestCaseActivityType.EVENT_BASED_GATEWAY) {
         activity.getStrategy().isWaitingAt(builder);
-      } else if (activity.hasNext() || activity.isProcessEnd()) {
+      } else if (activity.hasNext() || !activity.isProcessEnd()) {
         activity.getStrategy().hasPassed(builder);
       } else {
         // assert that process instance is waiting at the test case's last activity
@@ -67,7 +50,5 @@ public class Execute implements Function<TestCaseContext, MethodSpec> {
         activity.getStrategy().isWaitingAt(builder);
       }
     }
-
-    return builder.build();
   }
 }

@@ -136,14 +136,14 @@ public class Generator {
     new GenerateSpringConfiguration(result).accept(ctx);
   }
 
-  protected void generateMultiInstanceHandlers(GeneratorContext gCtx, TestCaseContext ctx) {
-    Consumer<TestCaseActivity> generate = new GenerateMultiInstanceHandler(gCtx, ctx, result);
+  protected void generateMultiInstanceHandlers(TestCaseContext ctx) {
+    Consumer<TestCaseActivity> generate = new GenerateMultiInstanceHandler(result);
 
     ctx.getActivities().stream().filter(activity -> activity.isMultiInstance() && !activity.isScope()).forEach(generate);
   }
 
-  protected void generateMultiInstanceScopeHandlers(GeneratorContext gCtx, TestCaseContext ctx) {
-    Consumer<TestCaseActivity> generate = new GenerateMultiInstanceScopeHandler(gCtx, ctx, result);
+  protected void generateMultiInstanceScopeHandlers(TestCaseContext ctx) {
+    Consumer<TestCaseActivity> generate = new GenerateMultiInstanceScopeHandler(result);
 
     ctx.getActivities().stream().filter(activity -> activity.isMultiInstance() && activity.isScope()).forEach(generate);
   }
@@ -175,8 +175,8 @@ public class Generator {
 
       log.info(String.format("Generating test case '%s'", testCaseName));
       generate.accept(ctx);
-      generateMultiInstanceHandlers(gCtx, ctx);
-      generateMultiInstanceScopeHandlers(gCtx, ctx);
+      generateMultiInstanceHandlers(ctx);
+      generateMultiInstanceScopeHandlers(ctx);
     }
   }
 

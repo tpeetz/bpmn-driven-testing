@@ -111,6 +111,8 @@ public class BuildTestCaseContext implements Function<TestCase, TestCaseContext>
       }
 
       String parentElementId = bpmnSupport.getParentElementId(flowNodeId);
+
+      // if activity is part of the root scope
       if (ctx.getProcessId().equals(parentElementId) || parentElementId == null) {
         scope = null;
 
@@ -258,6 +260,7 @@ public class BuildTestCaseContext implements Function<TestCase, TestCaseContext>
     MultiInstanceScopeStrategy multiInstanceScopeStrategy = new MultiInstanceScopeStrategy(ClassName.get(packageName, name));
     multiInstanceScopeStrategy.setActivity(scope);
     scope.setStrategy(multiInstanceScopeStrategy);
+    scope.setType(TestCaseActivityType.SCOPE);
 
     ctx.addActivity(scope);
   }

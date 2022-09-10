@@ -48,6 +48,6 @@ public class GeneratorMultiInstanceScopeTest {
     generator.generateTestCases(ctx, bpmnFile);
     // assertThat(result.getFiles(), hasSize(2));
 
-    System.out.println(result.getFiles().get(0).typeSpec.toString());
+    System.out.println(result.getFiles().get(1).typeSpec.toString());
   }
 }

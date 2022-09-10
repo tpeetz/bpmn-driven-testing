@@ -5,6 +5,9 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec.Builder;
 import com.squareup.javapoet.TypeName;
 
+/**
+ * Special strategy for multi instance scopes.
+ */
 public class MultiInstanceScopeStrategy extends DefaultHandlerStrategy {
 
   private final ClassName typeName;

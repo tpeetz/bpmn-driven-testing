@@ -1,6 +1,7 @@
 package org.camunda.community.bpmndt;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import org.camunda.bpm.model.bpmn.instance.FlowNode;
 import org.camunda.bpm.model.bpmn.instance.MultiInstanceLoopCharacteristics;
@@ -24,6 +25,8 @@ public class TestCaseActivityScope extends TestCaseActivity {
   }
 
   public void addActivity(TestCaseActivity next) {
+    next.setParent(this);
+
     if (!activities.isEmpty()) {
       TestCaseActivity prev = activities.getLast();
 
@@ -34,5 +37,9 @@ public class TestCaseActivityScope extends TestCaseActivity {
     }
 
     activities.add(next);
+  }
+
+  public List<TestCaseActivity> getActivities() {
+    return activities;
   }
 }

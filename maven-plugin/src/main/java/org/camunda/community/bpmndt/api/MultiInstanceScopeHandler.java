@@ -1,5 +1,8 @@
 package org.camunda.community.bpmndt.api;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import org.camunda.bpm.engine.ActivityTypes;
@@ -7,6 +10,8 @@ import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.bpm.engine.test.assertions.ProcessEngineTests;
+import org.camunda.bpm.engine.test.assertions.bpmn.ProcessInstanceAssert;
 
 /**
  * Fluent API for multi instance scopes (sub processes or transactions).
@@ -25,6 +30,8 @@ public class MultiInstanceScopeHandler<T extends MultiInstanceScopeHandler<?>> {
   /** ID of the multi instance scope. */
   private final String scopeId;
 
+  private final Map<Integer, BiFunction<ProcessInstanceAssert, Integer, Boolean>> actions;
+
   private Integer loopCount;
   private Boolean sequential;
 
@@ -33,6 +40,8 @@ public class MultiInstanceScopeHandler<T extends MultiInstanceScopeHandler<?>> {
     this.activityId = activityId;
 
     scopeId = String.format("%s#%s", activityId, ActivityTypes.MULTI_INSTANCE_BODY);
+
+    actions = new HashMap<>();
   }
 
   protected void apply(ProcessInstance pi) {
@@ -42,7 +51,14 @@ public class MultiInstanceScopeHandler<T extends MultiInstanceScopeHandler<?>> {
 
     int loopIndex = 0;
     while (!isEnded(pi)) {
-      boolean shouldContinue = apply(pi, loopIndex);
+      BiFunction<ProcessInstanceAssert, Integer, Boolean> action = actions.get(loopIndex);
+
+      boolean shouldContinue;
+      if (action == null) {
+        shouldContinue = apply(pi, loopIndex);
+      } else {
+        shouldContinue = nullSafeBoolean(action.apply(ProcessEngineTests.assertThat(pi), loopIndex));
+      }
 
       loopIndex++;
 
@@ -91,6 +107,22 @@ public class MultiInstanceScopeHandler<T extends MultiInstanceScopeHandler<?>> {
     return (T) this;
   }
 
+  /**
+   * Executes a custom action, which handles the activities within the scope, for a given loop index.
+   * 
+   * @param loopIndex A specific loop index (>= 0).
+   * 
+   * @param action A specific action that accepts the related process instance as
+   *        {@link ProcessInstanceAssert} and the loop index. It returns a boolean value that
+   *        indicates if the multi instance loop should be continued or not (e.g. in case of a
+   *        boundary event that will be triggered afterwards).
+   */
+  @SuppressWarnings("unchecked")
+  public T execute(int loopIndex, BiFunction<ProcessInstanceAssert, Integer, Boolean> action) {
+    actions.put(loopIndex, action);
+    return (T) this;
+  }
+
   protected ProcessEngine getProcessEngine() {
     return instance.getProcessEngine();
   }
@@ -131,6 +163,10 @@ public class MultiInstanceScopeHandler<T extends MultiInstanceScopeHandler<?>> {
    */
   protected boolean isSequential() {
     return true;
+  }
+
+  private boolean nullSafeBoolean(Boolean value) {
+    return value != null ? value.booleanValue() : false;
   }
 
   /**

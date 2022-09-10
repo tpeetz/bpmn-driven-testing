@@ -110,6 +110,12 @@ public interface GeneratorStrategy {
 
   void applyHandlerBefore(MethodSpec.Builder methodBuilder);
 
+  CodeBlock getHandler();
+
+  CodeBlock getHandlerAfter();
+
+  CodeBlock getHandlerBefore();
+
   /**
    * Returns the type name of the related handler or {@code Void}, if the activity is not handled by a
    * specific handler.
@@ -129,7 +135,11 @@ public interface GeneratorStrategy {
 
   void initHandlerAfter(MethodSpec.Builder methodBuilder);
 
+  CodeBlock initHandlerAfterStatement();
+
   void initHandlerBefore(MethodSpec.Builder methodBuilder);
+
+  CodeBlock initHandlerBeforeStatement();
 
   CodeBlock initHandlerStatement();
 

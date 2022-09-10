@@ -86,17 +86,41 @@ public class DefaultStrategy implements GeneratorStrategy {
   @Override
   public void applyHandlerAfter(MethodSpec.Builder methodBuilder) {
     methodBuilder.addStatement("assertThat(pi).isWaitingAt($S)", activity.getId());
-    methodBuilder.addStatement("instance.apply($L)", getLiteralAfter());
+    methodBuilder.addStatement("instance.apply($L)", getHandlerAfter());
   }
 
   @Override
   public void applyHandlerBefore(MethodSpec.Builder methodBuilder) {
     methodBuilder.addStatement("assertThat(pi).isWaitingAt($S)", activity.getId());
-    methodBuilder.addStatement("instance.apply($L)", getLiteralBefore());
+    methodBuilder.addStatement("instance.apply($L)", getHandlerBefore());
   }
 
   protected String buildHandlerMethodName(String literal) {
     return String.format("handle%s", StringUtils.capitalize(literal));
+  }
+
+  @Override
+  public CodeBlock getHandler() {
+    // nothing to return
+    return null;
+  }
+
+  @Override
+  public CodeBlock getHandlerAfter() {
+    if (activity.hasParent()) {
+      return CodeBlock.of("get$LHandlerBefore(loopIndex)", StringUtils.capitalize(activity.getLiteral()));
+    } else {
+      return CodeBlock.of(getLiteralAfter());
+    }
+  }
+
+  @Override
+  public CodeBlock getHandlerBefore() {
+    if (activity.hasParent()) {
+      return CodeBlock.of("get$LHandlerAfter(loopIndex)", StringUtils.capitalize(activity.getLiteral()));
+    } else {
+      return CodeBlock.of(getLiteralBefore());
+    }
   }
 
   @Override
@@ -125,13 +149,25 @@ public class DefaultStrategy implements GeneratorStrategy {
   @Override
   public void initHandlerAfter(MethodSpec.Builder methodBuilder) {
     methodBuilder.addCode("\n// $L: $L\n", activity.getTypeName(), activity.getId());
-    methodBuilder.addStatement("$L = new $T(getProcessEngine(), $S)", getLiteralAfter(), JobHandler.class, activity.getId());
+    methodBuilder.addCode("$L = ", activity.getLiteral());
+    methodBuilder.addStatement(initHandlerStatement());
+  }
+
+  @Override
+  public CodeBlock initHandlerAfterStatement() {
+    return CodeBlock.of("new $T(getProcessEngine(), $S)", JobHandler.class, activity.getId());
   }
 
   @Override
   public void initHandlerBefore(MethodSpec.Builder methodBuilder) {
     methodBuilder.addCode("\n// $L: $L\n", activity.getTypeName(), activity.getId());
-    methodBuilder.addStatement("$L = new $T(getProcessEngine(), $S)", getLiteralBefore(), JobHandler.class, activity.getId());
+    methodBuilder.addCode("$L = ", activity.getLiteral());
+    methodBuilder.addStatement(initHandlerStatement());
+  }
+
+  @Override
+  public CodeBlock initHandlerBeforeStatement() {
+    return CodeBlock.of("new $T(getProcessEngine(), $S)", JobHandler.class, activity.getId());
   }
 
   @Override
